@@ -5,7 +5,7 @@ describe("Pricing Database", () => {
   it("should have valid pricing structure for all tools", () => {
     expect(Object.keys(pricing).length).toBeGreaterThan(0);
     
-    for (const [toolId, config] of Object.entries(pricing)) {
+    for (const config of Object.values(pricing)) {
       expect(config).toHaveProperty("category");
       expect(config).toHaveProperty("useCases");
       expect(config).toHaveProperty("plans");
@@ -45,8 +45,8 @@ describe("Pricing Database", () => {
   });
 
   it("should maintain tool configuration consistency for recommended team sizes", () => {
-    for (const [toolId, config] of Object.entries(pricing)) {
-      for (const [planId, plan] of Object.entries(config.plans)) {
+    for (const config of Object.values(pricing)) {
+      for (const plan of Object.values(config.plans)) {
         // recommendedTeamSize should be an array of 1 or 2 numbers
         expect(Array.isArray(plan.recommendedTeamSize)).toBe(true);
         expect(plan.recommendedTeamSize.length).toBeGreaterThanOrEqual(1);

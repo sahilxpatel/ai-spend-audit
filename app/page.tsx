@@ -37,11 +37,11 @@ export default function Home() {
           </div>
           
           <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 tracking-tight max-w-4xl mx-auto mb-8 leading-[1.1]">
-            Stop overpaying for your team's AI subscriptions
+            Stop overpaying for your team&apos;s AI subscriptions
           </h1>
           
           <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-12 leading-relaxed">
-            Audit your team's current AI tool stack. We identify unused seats, overlapping capabilities, and better pricing tiers to save you thousands annually.
+            Audit your team&apos;s current AI tool stack. We identify unused seats, overlapping capabilities, and better pricing tiers to save you thousands annually.
           </p>
 
           {/* Integration of the Spend Form */}
@@ -100,7 +100,7 @@ export default function Home() {
       <section className="py-24 bg-slate-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-primary/20 via-slate-900 to-slate-900" />
         <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
-          <h2 className="text-4xl font-bold text-white mb-6">Ready to optimize your team's spend?</h2>
+          <h2 className="text-4xl font-bold text-white mb-6">Ready to optimize your team&apos;s spend?</h2>
           <p className="text-xl text-slate-300 mb-10">
             Join hundreds of forward-thinking teams keeping their AI stack lean and effective.
           </p>

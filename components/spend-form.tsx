@@ -8,12 +8,12 @@ import { Trash2, Plus, Sparkles } from "lucide-react";
 
 import { pricing } from "@/lib/pricing";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-import { UseCaseType } from "@/types/audit";
+
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
@@ -31,7 +31,11 @@ const formSchema = z.object({
   tools: z.array(toolSchema).min(1, "Add at least one tool to audit"),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+interface FormValues {
+  globalTeamSize: number;
+  primaryUseCase: "coding" | "writing" | "design" | "data-analysis" | "general-chat" | "research" | "operations";
+  tools: { id: string; toolId: string; planId: string; monthlySpend: number; seats: number }[];
+}
 
 const defaultValues: FormValues = {
   globalTeamSize: 1,
@@ -44,7 +48,9 @@ export function SpendForm() {
   const [savedData, setSavedData] = useLocalStorage<FormValues>("ai-spend-audit-form", defaultValues);
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    // zodResolver's inferred generic conflicts with react-hook-form's FieldValues constraint in
+    // strict mode. The canonical fix is a double-cast through unknown.
+    resolver: zodResolver(formSchema) as unknown as import("react-hook-form").Resolver<FormValues>,
     defaultValues: savedData,
     mode: "onChange",
   });
@@ -184,7 +190,7 @@ export function SpendForm() {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {Object.entries(pricing).map(([id, tool]) => (
+                                  {Object.entries(pricing).map(([id]) => (
                                     <SelectItem key={id} value={id}>
                                       {id.charAt(0).toUpperCase() + id.slice(1).replace('_', ' ')}
                                     </SelectItem>
