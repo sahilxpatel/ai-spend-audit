@@ -35,21 +35,50 @@ export interface ToolInput {
   seats: number;
 }
 
+export type RecommendationSeverity = "low" | "medium" | "high" | "critical";
+
+export type OptimizationCategory = 
+  | "plan-overkill" 
+  | "api-overspend" 
+  | "overlapping-tools" 
+  | "same-vendor" 
+  | "cross-tool" 
+  | "credit-opportunity" 
+  | "none";
+
+export type AuditConfidence = "low" | "medium" | "high";
+
+export type ToolCategory = UseCaseType | "misc";
+
+export interface AuditRecommendation {
+  title: string;
+  description: string;
+  reasoning: string;
+  monthlySavings: number;
+  annualSavings: number;
+  confidence: AuditConfidence;
+  optimizationType: OptimizationCategory;
+  severity: RecommendationSeverity;
+}
+
 export interface AuditResult {
   toolId: string;
   planId: string;
   currentSpend: number;
   optimalSpend: number;
   potentialSavings: number;
-  recommendationType: RecommendationType;
-  rationale: string;
+  recommendations: AuditRecommendation[];
   alternatives?: string[];
 }
 
 export interface AuditSummary {
   totalCurrentSpend: number;
-  totalOptimalSpend: number;
-  totalPotentialSavings: number;
+  totalRecommendedSpend: number;
+  totalMonthlySavings: number;
+  totalAnnualSavings: number;
+  savingsPercentage: number;
+  optimizationScore: number;
+  hasHighSavingsOpportunity: boolean;
   results: AuditResult[];
   globalTeamSize: number;
   primaryUseCase: UseCaseType;
