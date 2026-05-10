@@ -36,7 +36,6 @@ describe("Pricing Database", () => {
 
   it("should handle invalid pricing edge cases gracefully (by not defining them)", () => {
     // Ensuring non-existent tools or plans return undefined (standard object behavior)
-    // @ts-expect-error Testing invalid lookup
     const invalidTool = pricing.non_existent_tool;
     expect(invalidTool).toBeUndefined();
 

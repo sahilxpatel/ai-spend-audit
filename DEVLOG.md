@@ -58,3 +58,25 @@
 **Next Steps:**
 - Finalize UI integration of the audit results.
 - Prepare final submission deliverables.
+
+## Day 4: Results Experience & AI Summary Integration
+
+**Date**: 2026-05-10
+
+**Progress:**
+- Built the `SavingsHero` component to visualize potential savings and optimization scores.
+- Created dynamic `RecommendationCard` UI mapped to recommendation severities with clear badges and metrics.
+- Integrated the `ResultsSummary` component to tie the visualization together, including conditional CTA logic.
+- Implemented Groq API integration using the `llama-3.3-70b-versatile` model to generate concise AI summaries.
+- Added resilient fallback logic in `lib/summary.ts` to ensure the app doesn't break if Groq API fails or key is missing.
+- Completed full frontend flow from form submission through audit engine execution and results rendering.
+- Passed all linting, typing (`tsc`), and `vitest` unit tests. Successfully ran production build.
+
+**Decisions Made:**
+- **Client-Side State transition:** Kept the form and results on a single route (`/`), managing transition state locally to maintain high perceived performance.
+- **Server API Route for AI:** Created an API route `app/api/summary/route.ts` to hide the Groq API key and perform server-side generation safely.
+- **OpenAI SDK for Groq:** Reused the OpenAI SDK pointing to Groq's base URL, reducing dependency bloat.
+
+**Next Steps:**
+- Polish the copy.
+- Final testing and deployment.
