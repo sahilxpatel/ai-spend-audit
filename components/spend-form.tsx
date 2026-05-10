@@ -43,7 +43,7 @@ const defaultValues: FormValues = {
   tools: [{ id: crypto.randomUUID(), toolId: "", planId: "", monthlySpend: 0, seats: 1 }],
 };
 
-export function SpendForm() {
+export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormValues) => void }) {
   const [mounted, setMounted] = useState(false);
   const [savedData, setSavedData] = useLocalStorage<FormValues>("ai-spend-audit-form", defaultValues);
 
@@ -85,8 +85,9 @@ export function SpendForm() {
   }
 
   function onSubmit(data: FormValues) {
-    console.log("Form submitted:", data);
-    // TODO: In the next step, we will pass this to the deterministic audit engine.
+    if (onAuditComplete) {
+      onAuditComplete(data);
+    }
   }
 
   return (

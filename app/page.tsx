@@ -1,8 +1,40 @@
+"use client";
+
+import { useState } from "react";
 import { SpendForm } from "@/components/spend-form";
+import { ResultsSummary } from "@/components/results-summary";
 import { ArrowRight, BarChart3, ShieldCheck, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { aggregateAudit } from "@/lib/audit-engine";
+import { AuditSummary, ToolInput } from "@/types/audit";
 
 export default function Home() {
+  const [auditResult, setAuditResult] = useState<AuditSummary | null>(null);
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+
+  const handleAuditComplete = async (formData: { tools: ToolInput[] }) => {
+    // Run deterministic engine
+    const summary = aggregateAudit(formData.tools);
+    setAuditResult(summary);
+    
+    // Fetch AI summary
+    setIsLoadingSummary(true);
+    try {
+      const response = await fetch("/api/summary", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(summary),
+      });
+      const data = await response.json();
+      if (data.summary) setAiSummary(data.summary);
+    } catch (error) {
+      console.error("Failed to fetch AI summary", error);
+    } finally {
+      setIsLoadingSummary(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans selection:bg-primary/20 selection:text-primary">
       {/* Navigation */}
@@ -44,14 +76,31 @@ export default function Home() {
             Audit your team&apos;s current AI tool stack. We identify unused seats, overlapping capabilities, and better pricing tiers to save you thousands annually.
           </p>
 
-          {/* Integration of the Spend Form */}
-          <div className="mt-8 text-left animate-in fade-in slide-in-from-bottom-8 duration-1000">
-            <SpendForm />
+          {/* Main Content Area: Form or Results */}
+          <div className="mt-8 text-left">
+            {!auditResult ? (
+              <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
+                <SpendForm onAuditComplete={handleAuditComplete} />
+              </div>
+            ) : (
+              <ResultsSummary 
+                audit={auditResult} 
+                aiSummary={aiSummary} 
+                isLoadingSummary={isLoadingSummary} 
+                onReset={() => {
+                  setAuditResult(null);
+                  setAiSummary(null);
+                }} 
+              />
+            )}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Hide lower sections if showing results */}
+      {!auditResult && (
+        <>
+          {/* Features Section */}
       <section id="features" className="py-24 bg-white">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -109,6 +158,8 @@ export default function Home() {
           </Button>
         </div>
       </section>
+      </>
+      )}
 
       {/* Footer */}
       <footer className="bg-white border-t py-12">
