@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { SpendForm } from "@/components/spend-form";
 import { ResultsSummary } from "@/components/results-summary";
+import { LeadCaptureForm } from "@/components/lead-capture-form";
 import { ArrowRight, BarChart3, ShieldCheck, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { aggregateAudit } from "@/lib/audit-engine";
@@ -12,6 +13,7 @@ export default function Home() {
   const [auditResult, setAuditResult] = useState<AuditSummary | null>(null);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  const [auditId, setAuditId] = useState<string | null>(null);
 
   const handleAuditComplete = async (formData: { tools: ToolInput[] }) => {
     // Run deterministic engine
@@ -20,6 +22,7 @@ export default function Home() {
     
     // Fetch AI summary
     setIsLoadingSummary(true);
+    let generatedSummary: string | null = null;
     try {
       const response = await fetch("/api/summary", {
         method: "POST",
@@ -27,11 +30,29 @@ export default function Home() {
         body: JSON.stringify(summary),
       });
       const data = await response.json();
-      if (data.summary) setAiSummary(data.summary);
+      if (data.summary) {
+        setAiSummary(data.summary);
+        generatedSummary = data.summary;
+      }
     } catch (error) {
       console.error("Failed to fetch AI summary", error);
     } finally {
       setIsLoadingSummary(false);
+    }
+
+    // Save audit to backend
+    try {
+      const saveResponse = await fetch("/api/audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ audit: summary, summary: generatedSummary }),
+      });
+      const saveData = await saveResponse.json();
+      if (saveData.id) {
+        setAuditId(saveData.id);
+      }
+    } catch (error) {
+      console.error("Failed to save audit", error);
     }
   };
 
@@ -77,21 +98,30 @@ export default function Home() {
           </p>
 
           {/* Main Content Area: Form or Results */}
-          <div className="mt-8 text-left">
+          <div className="mt-8 text-left space-y-12">
             {!auditResult ? (
               <div className="animate-in fade-in slide-in-from-bottom-8 duration-1000">
                 <SpendForm onAuditComplete={handleAuditComplete} />
               </div>
             ) : (
-              <ResultsSummary 
-                audit={auditResult} 
-                aiSummary={aiSummary} 
-                isLoadingSummary={isLoadingSummary} 
-                onReset={() => {
-                  setAuditResult(null);
-                  setAiSummary(null);
-                }} 
-              />
+              <div className="space-y-12">
+                <ResultsSummary 
+                  audit={auditResult} 
+                  aiSummary={aiSummary} 
+                  isLoadingSummary={isLoadingSummary} 
+                  onReset={() => {
+                    setAuditResult(null);
+                    setAiSummary(null);
+                    setAuditId(null);
+                  }} 
+                />
+                
+                {auditId && (
+                  <div className="max-w-3xl mx-auto pt-8 border-t border-slate-200">
+                    <LeadCaptureForm auditId={auditId} />
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>
