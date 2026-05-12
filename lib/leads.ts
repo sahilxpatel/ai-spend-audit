@@ -10,7 +10,8 @@ export interface LeadInput {
 
 export async function createLead(leadData: LeadInput) {
   const supabase = getSupabase();
-  const { data, error } = await (supabase.from('leads') as any)
+  const { data, error } = await supabase
+    .from('leads')
     .insert([
       {
         audit_id: leadData.audit_id,

@@ -1,9 +1,14 @@
 import { Resend } from 'resend';
 
 const resendApiKey = process.env.RESEND_API_KEY || '';
+const resendFrom = process.env.RESEND_FROM || 'AI Spend Audit <onboarding@resend.dev>';
 
 if (!resendApiKey) {
   console.warn('RESEND_API_KEY is not set. Emails will not be sent.');
+}
+
+if (!process.env.RESEND_FROM) {
+  console.warn('RESEND_FROM is not set. Using onboarding@resend.dev for local testing.');
 }
 
 export const resend = new Resend(resendApiKey);
@@ -18,7 +23,7 @@ export interface SendAuditEmailParams {
 export async function sendAuditEmail({ to, auditId, monthlySavings, annualSavings }: SendAuditEmailParams) {
   if (!resendApiKey) {
     console.log('Skipping email send, no API key:', { to, auditId, monthlySavings, annualSavings });
-    return { success: false, error: 'No API key' };
+    return { success: false, error: 'Missing RESEND_API_KEY' };
   }
 
   try {
@@ -59,7 +64,7 @@ export async function sendAuditEmail({ to, auditId, monthlySavings, annualSaving
     `;
 
     const { data, error } = await resend.emails.send({
-      from: 'AI Spend Audit <audit@sahilajani.me>',
+      from: resendFrom,
       to,
       subject: `Your AI Spend Audit Results - $${monthlySavings.toLocaleString()}/mo in potential savings`,
       html: htmlContent,

@@ -3,6 +3,7 @@ import { createLead } from '@/lib/leads';
 import { getAuditById } from '@/lib/audits';
 import { sendAuditEmail } from '@/lib/resend';
 import { z } from 'zod';
+import { AuditSummary } from '@/types/audit';
 
 const leadSchema = z.object({
   audit_id: z.string().uuid(),
@@ -41,20 +42,29 @@ export async function POST(request: Request) {
     await createLead({ audit_id, email, company, role, team_size });
 
     // Try to send email asynchronously (or await, better to await to confirm it worked, but Resend is fast)
-    const auditData = auditRecord.audit_data as any;
+    const auditData = auditRecord.audit_data as unknown as AuditSummary;
+    let emailSent = false;
+    let emailError: string | null = null;
+
     if (auditData && auditData.totalMonthlySavings !== undefined) {
       const monthlySavings = auditData.totalMonthlySavings;
       const annualSavings = monthlySavings * 12;
 
-      await sendAuditEmail({
+      const emailResult = await sendAuditEmail({
         to: email,
         auditId: audit_id,
         monthlySavings,
         annualSavings,
       });
+
+      emailSent = emailResult.success;
+      if (!emailSent) {
+        emailError = emailResult.error ? String(emailResult.error) : 'Unknown email error';
+        console.warn('Email send failed:', emailError);
+      }
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, emailSent, emailError });
   } catch (error) {
     console.error('Lead capture API error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

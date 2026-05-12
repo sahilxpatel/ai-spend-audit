@@ -11,7 +11,7 @@ import { Mail, Briefcase, Users, User, CheckCircle2, Loader2, AlertCircle } from
 
 const leadSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
-  company: z.string().min(1, { message: "Company name is required" }),
+  company: z.string().optional(),
   role: z.string().optional(),
   team_size: z.string().optional(),
   bot_field: z.string().optional(), // Honeypot
@@ -28,6 +28,7 @@ export function LeadCaptureForm({ auditId, onSuccess }: LeadCaptureFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailWarning, setEmailWarning] = useState<string | null>(null);
 
   const {
     register,
@@ -43,6 +44,7 @@ export function LeadCaptureForm({ auditId, onSuccess }: LeadCaptureFormProps) {
   const onSubmit = async (data: LeadFormValues) => {
     setIsSubmitting(true);
     setError(null);
+    setEmailWarning(null);
 
     try {
       const response = await fetch("/api/lead", {
@@ -58,9 +60,15 @@ export function LeadCaptureForm({ auditId, onSuccess }: LeadCaptureFormProps) {
         throw new Error("Failed to submit");
       }
 
+      const responseData = await response.json();
+
+      if (responseData?.emailSent === false) {
+        setEmailWarning("Your audit was saved, but we could not send the email. Please verify your email address or try again later.");
+      }
+
       setIsSuccess(true);
       if (onSuccess) onSuccess();
-    } catch (err) {
+    } catch {
       setError("There was a problem saving your details. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -73,10 +81,15 @@ export function LeadCaptureForm({ auditId, onSuccess }: LeadCaptureFormProps) {
         <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-8 h-8 text-green-600" />
         </div>
-        <h3 className="text-xl font-bold text-slate-900 mb-2">You're all set!</h3>
+        <h3 className="text-xl font-bold text-slate-900 mb-2">You are all set!</h3>
         <p className="text-slate-600 mb-6 max-w-sm mx-auto">
-          We've saved your audit results and sent a copy to your email address with your private link.
+          We have saved your audit results and sent a copy to your email address with your private link.
         </p>
+        {emailWarning && (
+          <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+            {emailWarning}
+          </div>
+        )}
       </div>
     );
   }
@@ -111,7 +124,7 @@ export function LeadCaptureForm({ auditId, onSuccess }: LeadCaptureFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="company" className="text-slate-700">Company Name <span className="text-red-500">*</span></Label>
+          <Label htmlFor="company" className="text-slate-700">Company Name (optional)</Label>
           <div className="relative">
             <Briefcase className="absolute left-3 top-3 h-5 w-5 text-slate-400" />
             <Input 
@@ -121,7 +134,6 @@ export function LeadCaptureForm({ auditId, onSuccess }: LeadCaptureFormProps) {
               {...register("company")}
             />
           </div>
-          {errors.company && <p className="text-red-500 text-sm mt-1">{errors.company.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
