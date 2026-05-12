@@ -55,7 +55,7 @@ export async function sendAuditEmail({ to, auditId, monthlySavings, annualSaving
     `;
 
     const { data, error } = await resend.emails.send({
-      from: 'AI Spend Audit <audit@updates.aispendaudit.com>', // User can update domain later
+      from: 'AI Spend Audit <audit@sahilajani.me>',
       to,
       subject: `Your AI Spend Audit Results - $${monthlySavings.toLocaleString()}/mo in potential savings`,
       html: htmlContent,
