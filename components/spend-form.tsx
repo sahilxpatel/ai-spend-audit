@@ -27,13 +27,13 @@ const toolSchema = z.object({
 
 const formSchema = z.object({
   globalTeamSize: z.coerce.number().min(1, "Team size must be at least 1"),
-  primaryUseCase: z.enum(["coding", "writing", "design", "data-analysis", "general-chat", "research", "operations"] as const),
+  primaryUseCase: z.enum(["coding", "writing", "design", "data-analysis", "general-chat", "research", "operations", "mixed"] as const),
   tools: z.array(toolSchema).min(1, "Add at least one tool to audit"),
 });
 
 interface FormValues {
   globalTeamSize: number;
-  primaryUseCase: "coding" | "writing" | "design" | "data-analysis" | "general-chat" | "research" | "operations";
+  primaryUseCase: "coding" | "writing" | "design" | "data-analysis" | "general-chat" | "research" | "operations" | "mixed";
   tools: { id: string; toolId: string; planId: string; monthlySpend: number; seats: number }[];
 }
 
@@ -62,6 +62,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
 
   // Watch for changes to save to local storage
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/incompatible-library
     const subscription = form.watch((value) => {
       // Cast the value back to FormValues, making sure enum is valid.
       // We are just saving best effort state for the user to return to.
@@ -132,7 +133,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">Primary Use Case</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger className="bg-white dark:bg-slate-800">
                           <SelectValue placeholder="Select a use case" />
@@ -146,6 +147,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                         <SelectItem value="research">Research</SelectItem>
                         <SelectItem value="operations">Operations & Admin</SelectItem>
                         <SelectItem value="general-chat">General Chat</SelectItem>
+                        <SelectItem value="mixed">Mixed (no dominant use case)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -185,7 +187,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                                   // Reset plan when tool changes
                                   form.setValue(`tools.${index}.planId`, "");
                                 }} 
-                                defaultValue={selectField.value}
+                                value={selectField.value || undefined}
                               >
                                 <FormControl>
                                   <SelectTrigger>
@@ -193,9 +195,9 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {Object.entries(pricing).map(([id]) => (
+                                  {Object.entries(pricing).map(([id, tool]) => (
                                     <SelectItem key={id} value={id}>
-                                      {id.charAt(0).toUpperCase() + id.slice(1).replace('_', ' ')}
+                                      {tool.displayName || id.charAt(0).toUpperCase() + id.slice(1).replace('_', ' ')}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -214,18 +216,26 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                           render={({ field: selectField }) => (
                             <FormItem>
                               <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Plan</FormLabel>
-                              <Select onValueChange={selectField.onChange} defaultValue={selectField.value} disabled={!selectedToolId}>
+                              <Select onValueChange={selectField.onChange} value={selectField.value || undefined} disabled={!selectedToolId}>
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select Plan" />
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {availablePlans.map(([planId, planDetails]) => (
-                                    <SelectItem key={planId} value={planId}>
-                                      {planDetails.name} (${planDetails.price}/mo)
-                                    </SelectItem>
-                                  ))}
+                                  {availablePlans.map(([planId, planDetails]) => {
+                                    const priceLabel = planDetails.pricingType === "custom"
+                                      ? (planDetails.priceNote || "Custom")
+                                      : planDetails.pricingType === "usage"
+                                        ? (planDetails.priceNote || "Usage-based")
+                                        : `$${planDetails.price}/mo`;
+
+                                    return (
+                                      <SelectItem key={planId} value={planId}>
+                                        {planDetails.name} ({priceLabel})
+                                      </SelectItem>
+                                    );
+                                  })}
                                 </SelectContent>
                               </Select>
                               <FormMessage />

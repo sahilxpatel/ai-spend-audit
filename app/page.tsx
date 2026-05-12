@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { SpendForm } from "@/components/spend-form";
 import { ResultsSummary } from "@/components/results-summary";
 import { LeadCaptureForm } from "@/components/lead-capture-form";
@@ -252,7 +251,7 @@ export default function Home() {
           </section>
 
           {/* Supported Tools Section */}
-          <section id="supported-tools" className="scroll-mt-20 py-24 bg-white dark:bg-slate-900">
+          <section id="supported-tools" className="scroll-mt-20 py-24 bg-white dark:bg-slate-900" suppressHydrationWarning>
             <div className="max-w-5xl mx-auto px-6">
               <div className="text-center mb-14">
                 <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-50 mb-4">Supported tools</h2>
@@ -261,23 +260,28 @@ export default function Home() {
 
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-5">
                 {[
-                  { name: "ChatGPT", logo: "/logos/openai.svg", label: "OpenAI", plans: "3 plans" },
-                  { name: "Claude", logo: "/logos/anthropic.svg", label: "Anthropic", plans: "3 plans" },
-                  { name: "Gemini", logo: "/logos/gemini.svg", label: "Google", plans: "2 plans" },
+                  { name: "ChatGPT", logo: "/logos/openai.svg", label: "OpenAI", plans: "4 plans" },
+                  { name: "Claude", logo: "/logos/anthropic.svg", label: "Anthropic", plans: "6 plans" },
+                  { name: "Gemini", logo: "/logos/gemini.svg", label: "Google", plans: "4 plans" },
                   { name: "Copilot", logo: "/logos/github.svg", label: "GitHub", plans: "3 plans" },
-                  { name: "Cursor", logo: "/logos/cursor.svg", label: "Cursor", plans: "3 plans" },
+                  { name: "Cursor", logo: "/logos/cursor.svg", label: "Cursor", plans: "4 plans" },
                   { name: "Windsurf", logo: "/logos/windsurf.svg", label: "Codeium", plans: "3 plans" },
+                  { name: "OpenAI API", logo: "/logos/openai.svg", label: "OpenAI", plans: "API direct" },
+                  { name: "Anthropic API", logo: "/logos/anthropic.svg", label: "Anthropic", plans: "API direct" },
                 ].map((tool) => (
                   <div
                     key={tool.name}
                     className="group bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 text-center transition-all hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-500 hover:-translate-y-1 cursor-default"
                   >
                     <div className="w-10 h-10 mx-auto mb-4 text-slate-700 dark:text-slate-300 group-hover:scale-110 transition-transform">
-                      <Image
+                      <img
                         src={tool.logo}
                         alt={`${tool.name} logo`}
                         width={40}
                         height={40}
+                        loading="lazy"
+                        decoding="async"
+                        suppressHydrationWarning
                         className="w-10 h-10 dark:invert dark:brightness-200 opacity-80 group-hover:opacity-100 transition-opacity"
                       />
                     </div>
