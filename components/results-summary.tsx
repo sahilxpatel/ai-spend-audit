@@ -23,6 +23,8 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
     }))
   );
 
+  const isLowSavings = audit.totalMonthlySavings > 0 && audit.totalMonthlySavings < 100;
+
   // Sort by highest monthly savings
   allRecommendations.sort((a, b) => b.recommendation.monthlySavings - a.recommendation.monthlySavings);
 
@@ -45,6 +47,14 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
         optimizationScore={audit.optimizationScore}
         savingsPercentage={audit.savingsPercentage}
       />
+
+      {isLowSavings && (
+        <div className="mb-8 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl p-6">
+          <p className="text-slate-700 dark:text-slate-300 text-base">
+            Your stack is already relatively efficient. We identified a few smaller optimization opportunities that could still trim roughly $100/month or less.
+          </p>
+        </div>
+      )}
 
       {/* AI Summary Section */}
       <div className="mb-12 bg-white dark:bg-slate-800/50 rounded-2xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
@@ -95,22 +105,26 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
         )}
       </div>
 
-      {/* Conditional CTA */}
+      {/* Footer CTA */}
       <div className="bg-slate-900 rounded-3xl p-10 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-50" />
         <div className="relative z-10">
           <h3 className="text-2xl md:text-3xl font-bold text-white mb-4">
-            {audit.hasHighSavingsOpportunity 
-              ? "Ready to reclaim your budget?" 
-              : "Stay ahead of AI pricing changes"}
+            Audit another team&apos;s stack?
           </h3>
           <p className="text-slate-300 text-lg mb-8 max-w-2xl mx-auto">
-            {audit.hasHighSavingsOpportunity
-              ? `Let our team help you safely implement these changes and save $${audit.totalAnnualSavings.toLocaleString()} this year.`
-              : "Subscribe to our optimization alerts and get notified when new tools or pricing tiers can save you money."}
+            Check if another department or team is overpaying for their AI tools.
           </p>
-          <Button size="lg" className="px-8 text-lg bg-white text-slate-900 hover:bg-slate-100 h-14 rounded-full shadow-xl">
-            {audit.hasHighSavingsOpportunity ? "Book Credex Consultation" : "Get Optimization Updates"}
+          <Button 
+            size="lg" 
+            className="px-8 text-lg bg-white text-slate-900 hover:bg-slate-100 h-14 rounded-full shadow-xl"
+            onClick={() => {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+              // Small delay to let the scroll start before unmounting the results
+              setTimeout(onReset, 150);
+            }}
+          >
+            Analyze Another Stack
             <ArrowRight className="ml-2 w-5 h-5" />
           </Button>
         </div>
