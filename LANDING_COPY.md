@@ -1,25 +1,30 @@
-# Landing Page Copy & Value Prop Iterations
+# Landing Page Copy
 
-## Hero Section Iterations
+## Hero
+**Headline (<=10 words):** Cut AI spend without cutting capability.
+**Subheadline (<=25 words):** Audit your AI stack in under two minutes and get a deterministic savings report with clear, finance-ready recommendations.
+**Primary CTA:** Start Free Audit
 
-### V1 (Draft)
-**H1:** Audit your AI SaaS spend.
-**Sub:** Startups waste thousands on overlapping AI tools. Find out where you're overpaying in 60 seconds.
+## Trust Messaging
+- Deterministic engine (no AI math)
+- Pricing sources linked and verified
+- No login required to run the audit
 
-### V2 (Focus on Pain)
-**H1:** Stop paying for 3 different AI subscriptions.
-**Sub:** Your team doesn't need ChatGPT Plus, Claude Team, *and* Copilot. Our deterministic engine finds your redundancies and calculates exact monthly savings.
+## Social Proof (mocked)
+"Saved $1,240/year by consolidating two overlapping tools." — *Mocked founder quote*
 
-### V3 (Current - Launch Ready)
-**H1:** AI tools are eating your runway.
-**Sub:** Find out exactly where your team is overpaying for AI subscriptions in 60 seconds. No math required.
+## FAQ (5)
+1) **Do you need my billing data?**
+No. You enter your current spend and seats. The audit runs locally and only saves the results if you choose to.
 
-## Call to Action Buttons
-- **Primary:** "Start Free Audit"
-- **Post-Audit (High Savings):** "Book Optimization Consult"
-- **Post-Audit (Low Savings):** "Get Price Drop Alerts"
+2) **Is the audit accurate?**
+The math is deterministic and based on verified vendor pricing. We do not use AI for calculations.
 
-## Trust Signals
-- "100% Deterministic Engine"
-- "No AI used for financial calculations."
-- "Privacy first. We don't need your billing data."
+3) **What happens after I submit my email?**
+We send you a private link to your audit and follow up only if your savings are large enough to justify a consultation.
+
+4) **Can you handle enterprise pricing?**
+Yes. We flag enterprise tiers as custom pricing and focus on savings decisions that are defensible without inventing numbers.
+
+5) **Why should I trust this?**
+We cite every pricing source and show per-tool reasoning so finance or engineering can validate the recommendations.
