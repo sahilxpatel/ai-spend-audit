@@ -56,7 +56,7 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
         </div>
         
         {isLoadingSummary ? (
-          <div className="flex items-center gap-3 text-slate-500 py-4">
+          <div className="flex items-center gap-3 text-slate-500 py-4" aria-live="polite" aria-busy="true">
             <Loader2 className="w-5 h-5 animate-spin text-primary" />
             <p>Analyzing your spend stack...</p>
           </div>

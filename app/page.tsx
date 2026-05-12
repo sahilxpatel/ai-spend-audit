@@ -14,8 +14,10 @@ export default function Home() {
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const [auditId, setAuditId] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const handleAuditComplete = async (formData: { tools: ToolInput[] }) => {
+    setApiError(null);
     // Run deterministic engine
     const summary = aggregateAudit(formData.tools);
     setAuditResult(summary);
@@ -36,6 +38,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Failed to fetch AI summary", error);
+      setApiError("We couldn't generate the AI summary, but your detailed audit results are ready below.");
     } finally {
       setIsLoadingSummary(false);
     }
@@ -53,6 +56,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error("Failed to save audit", error);
+      setApiError(prev => prev || "Your audit couldn't be saved for sharing, but you can still view your results here.");
     }
   };
 
@@ -105,6 +109,12 @@ export default function Home() {
               </div>
             ) : (
               <div className="space-y-12">
+                {apiError && (
+                  <div className="bg-amber-50 border border-amber-200 text-amber-800 px-6 py-4 rounded-2xl flex items-center gap-3 animate-in fade-in">
+                    <ShieldCheck className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                    <p className="text-sm font-medium">{apiError}</p>
+                  </div>
+                )}
                 <ResultsSummary 
                   audit={auditResult} 
                   aiSummary={aiSummary} 
@@ -113,6 +123,7 @@ export default function Home() {
                     setAuditResult(null);
                     setAiSummary(null);
                     setAuditId(null);
+                    setApiError(null);
                   }} 
                 />
                 

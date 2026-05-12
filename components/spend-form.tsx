@@ -275,6 +275,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                           className="text-slate-400 hover:text-red-600 hover:bg-red-50"
                           onClick={() => remove(index)}
                           disabled={fields.length === 1}
+                          aria-label={`Remove tool ${index + 1}`}
                         >
                           <Trash2 className="w-5 h-5" />
                         </Button>
