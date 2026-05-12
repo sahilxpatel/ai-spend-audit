@@ -22,7 +22,11 @@ export async function sendAuditEmail({ to, auditId, monthlySavings, annualSaving
   }
 
   try {
-    const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/audit/${auditId}`;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL 
+      ? (process.env.NEXT_PUBLIC_APP_URL.startsWith('http') ? process.env.NEXT_PUBLIC_APP_URL : `https://${process.env.NEXT_PUBLIC_APP_URL}`)
+      : (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+      
+    const publicUrl = `${baseUrl}/audit/${auditId}`;
     
     // Optional consultation text if savings > 500/mo
     const consultationText = monthlySavings > 500 
