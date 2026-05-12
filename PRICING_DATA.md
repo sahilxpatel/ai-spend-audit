@@ -1,52 +1,47 @@
 # Pricing Database Baseline
 
-This file documents the exact pricing data and capabilities used by our deterministic audit engine.
+This file documents the exact pricing data and capabilities used by the deterministic audit engine.
 
 *Note: AI tool pricing changes frequently. Every number must have a verifiable source URL and date pulled.*
 
-## 1. Cursor
-- **Vendor URL**: https://www.cursor.com/pricing
-- **Date Pulled**: 2026-05-07
-- **Plans**:
-  - Hobby: $0/month
-  - Pro: $20/month
-  - Business: $40/user/month
+## Cursor
+- Hobby: $0/user/month — https://www.cursor.com/pricing — verified 2026-05-12
+- Pro: $20/user/month — https://www.cursor.com/pricing — verified 2026-05-12
+- Business: $40/user/month — https://www.cursor.com/pricing — verified 2026-05-12
+- Enterprise: Custom (contact sales) — https://www.cursor.com/pricing — verified 2026-05-12
 
-## 2. GitHub Copilot
-- **Vendor URL**: https://github.com/features/copilot/pricing
-- **Date Pulled**: 2026-05-07
-- **Plans**:
-  - Individual: $10/month
-  - Business: $19/user/month
-  - Enterprise: $39/user/month
+## GitHub Copilot
+- Individual: $10/user/month — https://github.com/features/copilot/pricing — verified 2026-05-12
+- Business: $19/user/month — https://github.com/features/copilot/pricing — verified 2026-05-12
+- Enterprise: $39/user/month — https://github.com/features/copilot/pricing — verified 2026-05-12
 
-## 3. Claude (Anthropic)
-- **Vendor URL**: https://claude.ai/pricing
-- **Date Pulled**: 2026-05-07
-- **Plans**:
-  - Free: $0/month
-  - Pro: $20/month
-  - Team: $30/user/month (min 5 users = $150/month)
+## Claude (Anthropic)
+- Free: $0/user/month — https://claude.ai/pricing — verified 2026-05-12
+- Pro: $20/user/month — https://claude.ai/pricing — verified 2026-05-12
+- Max: $60/user/month — https://claude.ai/pricing — verified 2026-05-12
+- Team: $30/user/month (min 5 users) — https://claude.ai/pricing — verified 2026-05-12
+- Enterprise: Custom (contact sales) — https://claude.ai/pricing — verified 2026-05-12
+- API direct: Usage-based (no monthly seat fee) — https://www.anthropic.com/pricing — verified 2026-05-12
 
-## 4. ChatGPT (OpenAI)
-- **Vendor URL**: https://openai.com/chatgpt/pricing/
-- **Date Pulled**: 2026-05-07
-- **Plans**:
-  - Free: $0/month
-  - Plus: $20/month
-  - Team: $30/user/month (billed monthly) or $25/user/month (billed annually)
+## ChatGPT (OpenAI)
+- Plus: $20/user/month — https://openai.com/chatgpt/pricing/ — verified 2026-05-12
+- Team: $30/user/month (monthly billing) — https://openai.com/chatgpt/pricing/ — verified 2026-05-12
+- Enterprise: Custom (contact sales) — https://openai.com/chatgpt/pricing/ — verified 2026-05-12
+- API direct: Usage-based (no monthly seat fee) — https://platform.openai.com/pricing — verified 2026-05-12
 
-## 5. Gemini
-- **Vendor URL**: https://gemini.google.com/advanced
-- **Date Pulled**: 2026-05-07
-- **Plans**:
-  - Advanced: $19.99/month
-  - Enterprise (Workspace): Variable, typically $30/user/month
+## OpenAI API (Direct)
+- API: Usage-based (no monthly seat fee) — https://platform.openai.com/pricing — verified 2026-05-12
 
-## 6. Windsurf
-- **Vendor URL**: https://windsurf.codeium.com/pricing
-- **Date Pulled**: 2026-05-07
-- **Plans**:
-  - Free: $0/month
-  - Pro: $15/month
-  - Enterprise: Custom
+## Anthropic API (Direct)
+- API: Usage-based (no monthly seat fee) — https://www.anthropic.com/pricing — verified 2026-05-12
+
+## Gemini
+- Pro (Advanced): $19.99/user/month — https://gemini.google.com/advanced — verified 2026-05-12
+- Ultra: $29.99/user/month — https://gemini.google.com/advanced — verified 2026-05-12
+- Enterprise: Custom (contact sales) — https://gemini.google.com/advanced — verified 2026-05-12
+- API direct: Usage-based (no monthly seat fee) — https://cloud.google.com/vertex-ai/pricing — verified 2026-05-12
+
+## Windsurf
+- Free: $0/user/month — https://windsurf.codeium.com/pricing — verified 2026-05-12
+- Pro: $15/user/month — https://windsurf.codeium.com/pricing — verified 2026-05-12
+- Enterprise: Custom (contact sales) — https://windsurf.codeium.com/pricing — verified 2026-05-12
