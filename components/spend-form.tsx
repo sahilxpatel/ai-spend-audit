@@ -70,15 +70,17 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
       }
     });
     return () => subscription.unsubscribe();
-  }, [form, setSavedData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form]);
 
-  // Prevent hydration mismatch
+  // Prevent hydration mismatch — restore saved data only once on mount
   useEffect(() => {
     setMounted(true);
     if (savedData) {
       form.reset(savedData);
     }
-  }, [form, savedData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (!mounted) {
     return <div className="min-h-[400px] flex items-center justify-center text-muted-foreground">Loading...</div>;
