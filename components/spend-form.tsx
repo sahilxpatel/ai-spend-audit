@@ -93,7 +93,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto shadow-lg border-primary/10 bg-white/50 backdrop-blur-sm">
+    <Card className="w-full max-w-4xl mx-auto shadow-lg border-primary/10 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
       <CardHeader className="space-y-1">
         <div className="flex items-center gap-2">
           <div className="bg-primary/10 p-2 rounded-xl">
@@ -111,15 +111,15 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
           <CardContent className="space-y-8">
             
             {/* Global Settings */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 p-6 rounded-xl border border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50/50 dark:bg-slate-800/30 p-6 rounded-xl border border-slate-100 dark:border-slate-700">
               <FormField
                 control={form.control}
                 name="globalTeamSize"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-700 font-semibold">Total Team Size</FormLabel>
+                    <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">Total Team Size</FormLabel>
                     <FormControl>
-                      <Input type="number" min={1} {...field} className="bg-white" />
+                      <Input type="number" min={1} {...field} className="bg-white dark:bg-slate-800" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -131,10 +131,10 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                 name="primaryUseCase"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-slate-700 font-semibold">Primary Use Case</FormLabel>
+                    <FormLabel className="text-slate-700 dark:text-slate-300 font-semibold">Primary Use Case</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger className="bg-white">
+                        <SelectTrigger className="bg-white dark:bg-slate-800">
                           <SelectValue placeholder="Select a use case" />
                         </SelectTrigger>
                       </FormControl>
@@ -157,7 +157,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
             {/* Tools Array */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-slate-800">Your AI Tools</h3>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-200">Your AI Tools</h3>
                 <span className="text-sm text-slate-500 font-medium">{fields.length} tool{fields.length === 1 ? '' : 's'} added</span>
               </div>
 
@@ -168,7 +168,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                   : [];
 
                 return (
-                  <div key={field.id} className="relative p-6 bg-white border border-slate-200 rounded-xl shadow-sm transition-all hover:shadow-md">
+                  <div key={field.id} className="relative p-6 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm transition-all hover:shadow-md">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
                       
                       {/* Tool Select */}
@@ -178,7 +178,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                           name={`tools.${index}.toolId`}
                           render={({ field: selectField }) => (
                             <FormItem>
-                              <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500">Tool</FormLabel>
+                              <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Tool</FormLabel>
                               <Select 
                                 onValueChange={(val) => {
                                   selectField.onChange(val);
@@ -213,7 +213,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                           name={`tools.${index}.planId`}
                           render={({ field: selectField }) => (
                             <FormItem>
-                              <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500">Plan</FormLabel>
+                              <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Plan</FormLabel>
                               <Select onValueChange={selectField.onChange} defaultValue={selectField.value} disabled={!selectedToolId}>
                                 <FormControl>
                                   <SelectTrigger>
@@ -241,7 +241,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                           name={`tools.${index}.monthlySpend`}
                           render={({ field: inputField }) => (
                             <FormItem>
-                              <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500">Spend/mo ($)</FormLabel>
+                              <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Spend/mo ($)</FormLabel>
                               <FormControl>
                                 <Input type="number" min={0} step="0.01" {...inputField} />
                               </FormControl>
@@ -258,7 +258,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
                           name={`tools.${index}.seats`}
                           render={({ field: inputField }) => (
                             <FormItem>
-                              <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500">Seats</FormLabel>
+                              <FormLabel className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">Seats</FormLabel>
                               <FormControl>
                                 <Input type="number" min={1} {...inputField} />
                               </FormControl>
@@ -291,7 +291,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
               <Button
                 type="button"
                 variant="outline"
-                className="w-full py-6 border-dashed border-2 border-slate-200 text-slate-600 hover:border-primary hover:text-primary hover:bg-primary/5 transition-colors"
+                className="w-full py-6 border-dashed border-2 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-colors"
                 onClick={() => append({ id: crypto.randomUUID(), toolId: "", planId: "", monthlySpend: 0, seats: 1 })}
               >
                 <Plus className="w-5 h-5 mr-2" />
@@ -301,7 +301,7 @@ export function SpendForm({ onAuditComplete }: { onAuditComplete?: (data: FormVa
             </div>
           </CardContent>
 
-          <CardFooter className="bg-slate-50/50 rounded-b-xl border-t p-6 flex justify-between items-center">
+          <CardFooter className="bg-slate-50/50 dark:bg-slate-800/30 rounded-b-xl border-t border-slate-200 dark:border-slate-700 p-6 flex justify-between items-center">
             <p className="text-sm text-slate-500">Your data is stored locally in your browser.</p>
             <Button type="submit" size="lg" className="px-8 font-semibold shadow-md">
               Generate Audit Report

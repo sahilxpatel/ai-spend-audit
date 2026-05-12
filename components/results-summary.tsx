@@ -31,8 +31,8 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
       
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Your Audit Results</h2>
-          <p className="text-slate-500 mt-1">Based on live pricing data and usage patterns</p>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">Your Audit Results</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-1">Based on live pricing data and usage patterns</p>
         </div>
         <Button variant="outline" onClick={onReset} className="hidden sm:flex">
           Audit Another Stack
@@ -47,12 +47,12 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
       />
 
       {/* AI Summary Section */}
-      <div className="mb-12 bg-white rounded-2xl p-8 shadow-sm border border-slate-200">
+      <div className="mb-12 bg-white dark:bg-slate-800/50 rounded-2xl p-8 shadow-sm border border-slate-200 dark:border-slate-700">
         <div className="flex items-center gap-2 mb-4">
           <div className="bg-primary/10 p-2 rounded-lg">
             <Sparkles className="w-5 h-5 text-primary" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900">AI Financial Summary</h3>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50">AI Financial Summary</h3>
         </div>
         
         {isLoadingSummary ? (
@@ -61,7 +61,7 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
             <p>Analyzing your spend stack...</p>
           </div>
         ) : (
-          <p className="text-slate-700 leading-relaxed text-lg">
+          <p className="text-slate-700 dark:text-slate-300 leading-relaxed text-lg">
             {aiSummary || "We analyzed your stack and found optimization opportunities. Review the detailed recommendations below to streamline your tooling costs."}
           </p>
         )}
@@ -69,7 +69,7 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
 
       {/* Recommendations List */}
       <div className="mb-16">
-        <h3 className="text-2xl font-bold text-slate-900 mb-6">Actionable Recommendations</h3>
+        <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-50 mb-6">Actionable Recommendations</h3>
         
         {allRecommendations.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -83,12 +83,12 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-slate-50 rounded-2xl border border-slate-100">
-            <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-emerald-600" />
+          <div className="text-center py-16 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-8 h-8 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h4 className="text-xl font-bold text-slate-900 mb-2">You&apos;re highly optimized!</h4>
-            <p className="text-slate-600 max-w-md mx-auto">
+            <h4 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-2">You&apos;re highly optimized!</h4>
+            <p className="text-slate-600 dark:text-slate-400 max-w-md mx-auto">
               We couldn&apos;t find any significant inefficiencies in your current AI tool stack. You are already spending efficiently.
             </p>
           </div>

@@ -9,11 +9,11 @@ interface RecommendationCardProps {
   currentSpend: number;
 }
 
-const severityConfig: Record<RecommendationSeverity, { color: string; bg: string; icon: LucideIcon }> = {
-  critical: { color: "text-red-600", bg: "bg-red-50", icon: AlertTriangle },
-  high: { color: "text-amber-600", bg: "bg-amber-50", icon: AlertTriangle },
-  medium: { color: "text-blue-600", bg: "bg-blue-50", icon: Info },
-  low: { color: "text-slate-600", bg: "bg-slate-50", icon: CheckCircle2 },
+const severityConfig: Record<RecommendationSeverity, { color: string; bg: string; darkBg: string; icon: LucideIcon }> = {
+  critical: { color: "text-red-600 dark:text-red-400", bg: "bg-red-50", darkBg: "dark:bg-red-950/50", icon: AlertTriangle },
+  high: { color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50", darkBg: "dark:bg-amber-950/50", icon: AlertTriangle },
+  medium: { color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50", darkBg: "dark:bg-blue-950/50", icon: Info },
+  low: { color: "text-slate-600 dark:text-slate-400", bg: "bg-slate-50", darkBg: "dark:bg-slate-800", icon: CheckCircle2 },
 };
 
 const actionIconConfig: Record<RecommendationType, LucideIcon> = {
@@ -40,17 +40,17 @@ export function RecommendationCard({ toolId, recommendation, currentSpend }: Rec
   const hasSavings = recommendation.monthlySavings > 0;
 
   return (
-    <Card className="overflow-hidden border-slate-200 shadow-sm transition-shadow hover:shadow-md">
+    <Card className="overflow-hidden border-slate-200 dark:border-slate-700 shadow-sm transition-shadow hover:shadow-md">
       <div className={`h-1.5 w-full ${severityConfig[recommendation.severity].bg.replace('bg-', 'bg-').replace('50', '500')}`} />
       
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
                 {capitalizedToolName}
               </span>
-              <span className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${severityConfig[recommendation.severity].bg} ${severityConfig[recommendation.severity].color}`}>
+              <span className={`flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${severityConfig[recommendation.severity].bg} ${severityConfig[recommendation.severity].darkBg} ${severityConfig[recommendation.severity].color}`}>
                 <SeverityIcon className="w-3 h-3" />
                 {recommendation.severity.charAt(0).toUpperCase() + recommendation.severity.slice(1)} Priority
               </span>
@@ -64,7 +64,7 @@ export function RecommendationCard({ toolId, recommendation, currentSpend }: Rec
           </div>
           
           {hasSavings && (
-            <div className="text-right flex-shrink-0 bg-emerald-50 rounded-xl p-3 border border-emerald-100">
+            <div className="text-right flex-shrink-0 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl p-3 border border-emerald-100 dark:border-emerald-800">
               <p className="text-emerald-800 text-xs font-bold uppercase tracking-wider mb-1">Save</p>
               <p className="text-2xl font-extrabold text-emerald-600 leading-none">
                 ${recommendation.monthlySavings}<span className="text-sm font-semibold text-emerald-500">/mo</span>
@@ -75,12 +75,12 @@ export function RecommendationCard({ toolId, recommendation, currentSpend }: Rec
       </CardHeader>
       
       <CardContent>
-        <div className="bg-slate-50 rounded-lg p-4 border border-slate-100">
-          <h4 className="text-sm font-semibold text-slate-900 mb-2 flex items-center gap-2">
-            <ActionIcon className="w-4 h-4 text-slate-500" />
+        <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 border border-slate-100 dark:border-slate-700">
+          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2 flex items-center gap-2">
+            <ActionIcon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
             Why this matters
           </h4>
-          <p className="text-sm text-slate-600 leading-relaxed">
+          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
             {recommendation.reasoning}
           </p>
         </div>
@@ -92,7 +92,7 @@ export function RecommendationCard({ toolId, recommendation, currentSpend }: Rec
               <span>Annual Impact: <span className="text-emerald-600 font-bold">${recommendation.annualSavings}</span></span>
             )}
           </div>
-          <span className="bg-slate-100 px-2 py-1 rounded">
+          <span className="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
             Confidence: {recommendation.confidence.charAt(0).toUpperCase() + recommendation.confidence.slice(1)}
           </span>
         </div>
