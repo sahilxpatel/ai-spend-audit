@@ -1,14 +1,30 @@
 import { NextResponse } from 'next/server';
 import { createAudit } from '@/lib/audits';
 import { z } from 'zod';
+import { AuditSummary } from '@/types/audit';
 
-// We just do a basic validation for presence, the actual structure is typed elsewhere
+// Basic validation aligned with AuditSummary payload
 const auditSchema = z.object({
   audit: z.object({
-    tools: z.array(z.any()),
-    totalMonthlySpend: z.number(),
+    totalCurrentSpend: z.number(),
+    totalRecommendedSpend: z.number(),
     totalMonthlySavings: z.number(),
-    recommendations: z.array(z.any()),
+    totalAnnualSavings: z.number(),
+    savingsPercentage: z.number(),
+    optimizationScore: z.number(),
+    hasHighSavingsOpportunity: z.boolean(),
+    results: z.array(z.any()),
+    globalTeamSize: z.number(),
+    primaryUseCase: z.enum([
+      "coding",
+      "writing",
+      "design",
+      "data-analysis",
+      "general-chat",
+      "research",
+      "operations",
+      "mixed",
+    ] as const),
   }),
   summary: z.string().nullable().optional(),
 });
@@ -23,7 +39,7 @@ export async function POST(request: Request) {
     }
 
     const { audit, summary } = result.data;
-    const { id } = await createAudit(audit as any, summary || null);
+    const { id } = await createAudit(audit as unknown as AuditSummary, summary || null);
 
     return NextResponse.json({ success: true, id });
   } catch (error) {

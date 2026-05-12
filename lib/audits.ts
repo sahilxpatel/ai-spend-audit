@@ -1,15 +1,19 @@
 import { getSupabase } from './supabase';
 import { AuditSummary } from '@/types/audit';
+import { Database, Json } from '@/types/database';
+
+type AuditRow = Database['public']['Tables']['audits']['Row'];
 
 export async function createAudit(auditData: AuditSummary, summary: string | null = null) {
   const supabase = getSupabase();
-  const { data, error } = await (supabase.from('audits') as any)
-    .insert([
-      {
-        audit_data: auditData as any,
-        summary,
-      },
-    ])
+  const payload: Database['public']['Tables']['audits']['Insert'] = {
+    audit_data: auditData as unknown as Json,
+    summary,
+  };
+
+  const { data, error } = await supabase
+    .from('audits')
+    .insert([payload])
     .select('id')
     .single();
 
@@ -21,9 +25,10 @@ export async function createAudit(auditData: AuditSummary, summary: string | nul
   return data;
 }
 
-export async function getAuditById(id: string) {
+export async function getAuditById(id: string): Promise<AuditRow | null> {
   const supabase = getSupabase();
-  const { data, error } = await (supabase.from('audits') as any)
+  const { data, error } = await supabase
+    .from('audits')
     .select('*')
     .eq('id', id)
     .single();
@@ -33,5 +38,5 @@ export async function getAuditById(id: string) {
     return null;
   }
 
-  return data;
+  return data as AuditRow;
 }

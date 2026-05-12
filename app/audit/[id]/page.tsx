@@ -1,21 +1,25 @@
 import { getAuditById } from "@/lib/audits";
 import { ResultsSummary } from "@/components/results-summary";
 import { notFound } from "next/navigation";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 import { BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { AuditSummary } from "@/types/audit";
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // Generate dynamic metadata for Open Graph / SEO
 export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
+  { params }: Props
 ): Promise<Metadata> {
-  const id = params.id;
+  const { id } = await params;
+  if (!id) {
+    return {
+      title: "Audit Not Found | AI Spend Audit",
+    };
+  }
   const auditRecord = await getAuditById(id);
 
   if (!auditRecord) {
@@ -24,7 +28,7 @@ export async function generateMetadata(
     };
   }
 
-  const auditData = auditRecord.audit_data as AuditSummary;
+  const auditData = auditRecord.audit_data as unknown as AuditSummary;
   const annualSavings = auditData.totalMonthlySavings * 12;
 
   const title = `AI Spend Audit found $${annualSavings.toLocaleString()}/year in savings`;
@@ -47,13 +51,18 @@ export async function generateMetadata(
 }
 
 export default async function PublicAuditPage({ params }: Props) {
-  const auditRecord = await getAuditById(params.id);
+  const { id } = await params;
+  if (!id) {
+    notFound();
+  }
+
+  const auditRecord = await getAuditById(id);
 
   if (!auditRecord) {
     notFound();
   }
 
-  const auditData = auditRecord.audit_data as AuditSummary;
+  const auditData = auditRecord.audit_data as unknown as AuditSummary;
   const aiSummary = auditRecord.summary;
 
   return (
@@ -110,7 +119,7 @@ export default async function PublicAuditPage({ params }: Props) {
             href="/"
             className="inline-flex h-12 items-center justify-center rounded-md bg-primary px-8 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           >
-            Audit My Team's Spend
+            Audit My Team&apos;s Spend
           </Link>
         </div>
       </div>

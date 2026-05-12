@@ -22,15 +22,16 @@ async function verifyAll() {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     );
     // Try to just get the count of the audits table
-    const { data, error } = await supabase.from('audits').select('*').limit(1);
+    const { error } = await supabase.from('audits').select('*').limit(1);
     if (error) {
       console.error('❌ Supabase connection failed:', error.message);
       allGood = false;
     } else {
       console.log('✅ Supabase connected successfully.');
     }
-  } catch (err: any) {
-    console.error('❌ Supabase verification error:', err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('❌ Supabase verification error:', message);
     allGood = false;
   }
 
@@ -50,8 +51,9 @@ async function verifyAll() {
       max_tokens: 10,
     });
     console.log('✅ Groq connected successfully. Response:', completion.choices[0]?.message?.content);
-  } catch (err: any) {
-    console.error('❌ Groq connection failed:', err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('❌ Groq connection failed:', message);
     allGood = false;
   }
 
@@ -70,8 +72,9 @@ async function verifyAll() {
     } else {
        console.log('✅ Resend key is valid. Found', domains.data?.length || 0, 'domains.');
     }
-  } catch (err: any) {
-    console.error('❌ Resend verification error:', err.message);
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('❌ Resend verification error:', message);
     allGood = false;
   }
 
