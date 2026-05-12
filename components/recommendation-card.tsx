@@ -25,8 +25,8 @@ const actionIconConfig: Record<RecommendationType, LucideIcon> = {
 };
 
 export function RecommendationCard({ toolId, recommendation, currentSpend }: RecommendationCardProps) {
-  const toolName = pricing[toolId]?.plans[Object.keys(pricing[toolId]?.plans)[0]]?.name.split(" ")[0] || toolId;
-  const capitalizedToolName = toolName.charAt(0).toUpperCase() + toolName.slice(1);
+  const displayName = pricing[toolId]?.displayName || toolId;
+  const capitalizedToolName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
   
   const SeverityIcon = severityConfig[recommendation.severity].icon;
   // Infer action type from title or optimizationType as a fallback if we don't have explicit type

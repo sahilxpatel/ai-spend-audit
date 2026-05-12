@@ -1,5 +1,6 @@
 import { ToolInput, AuditRecommendation, ToolPricing } from "@/types/audit";
 
+
 function formatToolName(toolId: string): string {
   return toolId.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
@@ -12,15 +13,23 @@ export function checkPlanOverkill(
   const plan = toolPricing.plans[input.planId];
   if (!plan) return null;
 
+  // Never suggest a downgrade when the user reports $0 spend — nothing to save.
+  if (input.monthlySpend <= 0) return null;
+
   // Check if seats are below the minimum recommended for the current plan
   if (plan.recommendedTeamSize[0] > input.seats) {
     let bestPlanId: string | null = null;
     let bestPlanPrice = Infinity;
 
     for (const [pId, pInfo] of Object.entries(toolPricing.plans)) {
+      // Skip usage-based (API) and custom (enterprise) plans — they can't be a
+      // meaningful downgrade target because their $0 price is not a real saving.
+      if (pInfo.pricingType === "usage" || pInfo.pricingType === "custom") continue;
+      if (pInfo.price <= 0) continue;
+
       const minSeats = pInfo.recommendedTeamSize[0];
       const maxSeats = pInfo.recommendedTeamSize.length > 1 ? (pInfo.recommendedTeamSize[1] ?? minSeats) : minSeats;
-      
+
       if (input.seats >= minSeats && input.seats <= maxSeats && pInfo.price < plan.price) {
         if (pInfo.price < bestPlanPrice) {
           bestPlanPrice = pInfo.price;
@@ -33,6 +42,9 @@ export function checkPlanOverkill(
       const betterPlan = toolPricing.plans[bestPlanId];
       const optimalMonthly = betterPlan.price * input.seats;
       const monthlySavings = Math.max(0, input.monthlySpend - optimalMonthly);
+
+      // Only surface the recommendation if there is a real dollar saving.
+      if (monthlySavings <= 0) return null;
 
       return {
         title: `Downgrade to ${formatToolName(input.toolId)} ${betterPlan.name}`,
@@ -54,30 +66,30 @@ export function checkApiOverspend(
   input: ToolInput,
   toolPricing: ToolPricing
 ): AuditRecommendation | null {
-  // Assuming 'api' is passed as a planId for API usage
-  if (input.planId.toLowerCase() === "api") {
-    // Find a standard pro/plus plan to compare against (usually around $20)
-    const standardPlanEntry = Object.entries(toolPricing.plans).find(
-      ([id, p]) => id.includes("pro") || id.includes("plus") || p.price === 20
-    );
+  // Only applies to tools explicitly on an API plan with non-zero spend.
+  if (input.planId.toLowerCase() !== "api" || input.monthlySpend <= 0) return null;
 
-    if (standardPlanEntry) {
-      const [, standardPlan] = standardPlanEntry;
-      const optimalSpend = standardPlan.price * input.seats;
-      
-      if (input.monthlySpend > optimalSpend * 1.2) { // 20% more than subscription
-        const monthlySavings = input.monthlySpend - optimalSpend;
-        return {
-          title: `Switch from API to ${standardPlan.name} Subscription`,
-          description: `API spend is significantly higher than fixed subscription costs.`,
-          reasoning: `You are spending $${input.monthlySpend}/mo on API usage for ${input.seats} users. A fixed ${standardPlan.name} subscription would cost $${optimalSpend}/mo.`,
-          monthlySavings,
-          annualSavings: monthlySavings * 12,
-          confidence: "medium",
-          optimizationType: "api-overspend",
-          severity: monthlySavings > 50 ? "high" : "medium"
-        };
-      }
+  // Find a standard pro/plus plan for the SAME tool to compare against.
+  const standardPlanEntry = Object.entries(toolPricing.plans).find(
+    ([id, p]) => id.includes("pro") || id.includes("plus") || p.price === 20
+  );
+
+  if (standardPlanEntry) {
+    const [, standardPlan] = standardPlanEntry;
+    const optimalSpend = standardPlan.price * input.seats;
+    
+    if (input.monthlySpend > optimalSpend * 1.2) { // 20% more than subscription
+      const monthlySavings = input.monthlySpend - optimalSpend;
+      return {
+        title: `Switch from API to ${standardPlan.name} Subscription`,
+        description: `API spend is significantly higher than fixed subscription costs.`,
+        reasoning: `You are spending $${input.monthlySpend}/mo on API usage for ${input.seats} users. A fixed ${standardPlan.name} subscription would cost $${optimalSpend}/mo.`,
+        monthlySavings,
+        annualSavings: monthlySavings * 12,
+        confidence: "medium",
+        optimizationType: "api-overspend",
+        severity: monthlySavings > 50 ? "high" : "medium"
+      };
     }
   }
   return null;
@@ -90,7 +102,10 @@ export function checkOverlappingTools(
   pricingDb: Record<string, ToolPricing>
 ): AuditRecommendation | null {
   const toolPricing = pricingDb[input.toolId];
-  if (!toolPricing || input.planId === "api") return null;
+  const plan = toolPricing?.plans[input.planId];
+  // Skip if the tool isn't in the DB, or if it's an API/usage-based plan
+  // (we can't consolidate a usage plan the same way as a fixed-seat subscription).
+  if (!toolPricing || (plan && plan.pricingType === "usage")) return null;
 
   const overlaps = allInputs.filter(other => {
     if (other.id === input.id) return false;
@@ -129,26 +144,36 @@ export function checkOverlappingTools(
 }
 
 // RULE TYPE 5 — Cross-Tool Recommendations
+// IMPORTANT: alternativeCandidateIds must be restricted to tools in the user's active stack.
+// We must NEVER recommend a tool that the user has not already included in their audit.
 export function checkCrossToolOptimization(
   input: ToolInput,
   toolPricing: ToolPricing,
-  pricingDb: Record<string, ToolPricing>
+  pricingDb: Record<string, ToolPricing>,
+  activeToolIds: Set<string>
 ): AuditRecommendation | null {
   const currentPlan = toolPricing.plans[input.planId];
-  if (!currentPlan) return null;
+  if (!currentPlan || input.monthlySpend <= 0) return null;
 
   let alternativeToolId: string | null = null;
   let alternativePlanId: string | null = null;
   let lowestPrice = currentPlan.price;
 
-  // Look for cheaper alternatives in the same category
+  // Look for cheaper alternatives ONLY among tools the user already pays for
+  // in the same category. Never recommend a tool not in their stack.
   for (const [tId, tPricing] of Object.entries(pricingDb)) {
-    if (tId === input.toolId || tPricing.category !== toolPricing.category) continue;
+    if (tId === input.toolId) continue;                        // Skip the current tool itself
+    if (!activeToolIds.has(tId)) continue;                    // ← KEY GUARD: skip tools not in the user's stack
+    if (tPricing.category !== toolPricing.category) continue; // Same category only
     
     for (const [pId, pInfo] of Object.entries(tPricing.plans)) {
+      // Skip non-comparable plans with usage-based or custom pricing.
+      if (pInfo.pricingType === "usage" || pInfo.pricingType === "custom") continue;
+      if (pInfo.price <= 0) continue;
+
       const minSeats = pInfo.recommendedTeamSize[0];
       const maxSeats = pInfo.recommendedTeamSize.length > 1 ? (pInfo.recommendedTeamSize[1] ?? minSeats) : minSeats;
-      
+
       // Ensure the alternative supports the team size and is cheaper
       if (input.seats >= minSeats && input.seats <= maxSeats && pInfo.price < lowestPrice) {
         lowestPrice = pInfo.price;
@@ -207,6 +232,10 @@ export function generateRecommendations(
   const toolPricing = pricingDb[input.toolId];
   if (!toolPricing) return [];
 
+  // Build the set of tool IDs that are present in the user's active audit.
+  // This is the single source of truth used to scope all cross-tool logic.
+  const activeToolIds = new Set(allInputs.map((i) => i.toolId));
+
   const recommendations: AuditRecommendation[] = [];
 
   // Run all rules
@@ -219,9 +248,10 @@ export function generateRecommendations(
   const overlap = checkOverlappingTools(input, allInputs, pricingDb);
   if (overlap) recommendations.push(overlap);
 
-  // If no plan overkill or overlap, check cross-tool
+  // Cross-tool is only run when no stronger recommendation (overkill/overlap) applies.
+  // It is strictly limited to tools already present in the user's stack.
   if (!planOverkill && !overlap) {
-    const crossTool = checkCrossToolOptimization(input, toolPricing, pricingDb);
+    const crossTool = checkCrossToolOptimization(input, toolPricing, pricingDb, activeToolIds);
     if (crossTool) recommendations.push(crossTool);
   }
 

@@ -10,7 +10,12 @@ export function auditTool(
   allInputs: ToolInput[],
   pricingDb: Record<string, ToolPricing> = defaultPricingDb
 ): AuditResult {
-  const recommendations = generateRecommendations(input, allInputs, pricingDb);
+  const isInStack = allInputs.some(
+    entry => entry.id === input.id && entry.toolId === input.toolId
+  );
+  const recommendations = isInStack
+    ? generateRecommendations(input, allInputs, pricingDb)
+    : [];
   
   const currentSpend = input.monthlySpend;
   

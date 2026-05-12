@@ -5,7 +5,8 @@ export type UseCaseType =
   | "data-analysis" 
   | "general-chat"
   | "research"
-  | "operations";
+  | "operations"
+  | "mixed";
 
 export type RecommendationType = 
   | "downgrade" 
@@ -14,14 +15,19 @@ export type RecommendationType =
   | "keep" 
   | "cancel";
 
+export type PlanPricingType = "per-seat" | "flat" | "usage" | "custom";
+
 export interface PricingPlan {
   name: string;
   price: number;
+  pricingType?: PlanPricingType;
+  priceNote?: string;
   recommendedTeamSize: [number] | [number, number]; // [min] or [min, max]
   capabilities: string[];
 }
 
 export interface ToolPricing {
+  displayName?: string;
   category: UseCaseType;
   useCases: UseCaseType[];
   plans: Record<string, PricingPlan>;
