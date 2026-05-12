@@ -1,33 +1,73 @@
 # System Architecture
 
 ## Overview
-AI Spend Audit is a serverless Next.js 15 application designed to capture lead data by providing a deterministic, high-value financial audit of a company's AI tool spend.
+AI Spend Audit is a serverless Next.js 15 application designed to capture lead data by providing a high-value financial audit of a company's AI tool spend. It uses a hybrid architecture, combining a deterministic audit engine for precise financial calculations with generative AI for qualitative analysis.
 
 ## System Flow & Data Pipeline
 
 ```mermaid
 graph TD
-    A[User visits /] -->|Fills Form| B(Client State: React Hook Form + localStorage)
-    B -->|Submits| C{Honeypot Validation}
-    C -->|Fails| D[Silent Reject]
-    C -->|Passes| E[Server Action: auditEngine]
-    E -->|Calculates Savings| F[lib/audit-engine.ts]
-    F -->|Raw Data| G[Groq API: llama-3.3-70b]
-    G -->|Summary Generated| H[Supabase: audits Table]
-    H -->|Returns ID| I[Redirect to /audit/:id]
-    I -->|User Views Results| J{Lead Capture CTA}
-    J -->|Submits Email| K[Supabase: leads Table]
-    K -->|Triggers| L[Resend API: Confirmation Email]
+    %% Client Side
+    subgraph Frontend [Client: React + Next.js App Router]
+        A[User visits /] -->|Fills Form| B(Local State: React Hook Form + localStorage)
+        B -->|Submits Form| C[Client API Calls]
+    end
+
+    %% Backend API & Logic
+    subgraph Backend [Server: Next.js API Routes]
+        C -->|POST /api/summary| D[AI Summary Generation]
+        C -->|POST /api/audit| E[Database Insertion]
+        C -->|POST /api/lead| F[Lead Capture & Notification]
+    end
+
+    %% External Services
+    subgraph Services [External APIs & Services]
+        D -->|Fetch Context| G[Groq API: llama-3.3-70b]
+        E -->|Store Audit Data| H[(Supabase: audits Table)]
+        F -->|Store Contact Info| I[(Supabase: leads Table)]
+        F -->|Trigger Email| J[Resend API]
+    end
+
+    %% Logic Modules
+    subgraph Core Logic [Deterministic Engine]
+        C -.->|Runs Locally via lib/audit-engine.ts| K[Savings Calculation]
+        K -.->|Generates| L[Audit Results & Recommendations]
+        L --> D
+        L --> E
+    end
 ```
 
-## Stack Justification
-- **Next.js 15 (App Router)**: Enables mixing Server Components for performance/SEO and Client Components for the interactive form. The API routes power the OG Image generation securely.
-- **Supabase**: Postgres with Row Level Security (RLS) allows us to accept anonymous audit submissions while securely locking down lead data from public read access.
-- **Groq API**: Offers extremely low-latency generation, which is crucial since the user is waiting for the form submission to complete. We use `llama-3.3-70b-versatile` for high-quality narrative synthesis without math hallucination risks.
-- **Zod**: Ensures strict typing and validation at the form level before hitting any API.
+## Architectural Decisions
 
-## Scaling to 10k Audits/Day
-If we scale to 10,000 audits per day:
-1. **Groq API Rate Limits**: We would likely hit rate limits. **Solution**: Implement background queueing for the AI summary generation via Upstash/Redis, or fall back to static deterministic summaries gracefully during peak load.
-2. **Database Reads**: Open Graph preview bots (Twitter, Slack) will hammer the database for `/audit/:id` reads. **Solution**: Enable Next.js ISR (Incremental Static Regeneration) on the results page to cache the audit result at the Edge, reducing database load.
-3. **Database Writes**: Supabase can handle 10k inserts/day easily, but we might want to batch lead inserts if traffic spikes violently.
+### 1. Deterministic Audit Engine vs AI Math
+**Why deterministic audit logic was used instead of an LLM:**
+LLMs are notoriously unreliable at arithmetic and strict logical deductions. If a user states they have 10 seats of ChatGPT Team at $30/user/mo, and we need to compare that to an enterprise tier that requires a minimum of 15 seats at $25/user/mo, the logic must be flawless. Using a hard-coded, deterministic engine (`lib/audit-engine.ts`) ensures that financial recommendations are 100% accurate, reliable, and testable. AI is kept completely out of the critical path for financial math.
+
+### 2. Groq for AI Summaries
+**Why Groq was limited to summaries:**
+While the math is handled deterministically, users still value a human-like, qualitative summary of their stack. Groq (using Llama-3.3-70b) was selected for its ultra-low latency. Because the summary is generated on-demand while the user waits on the results page, speed is paramount. Groq takes the *already calculated* deterministic output and simply synthesizes it into a professional, easily digestible paragraph.
+
+### 3. Supabase Selection
+**Why Supabase was selected:**
+Supabase provides PostgreSQL with robust Row Level Security (RLS). This is critical because:
+1. We need to allow unauthenticated, anonymous users to insert audit records (to reduce friction).
+2. We need to allow public reading of specific audit records (for shareable links).
+3. We MUST strictly prevent public reading of the `leads` table to avoid PII leaks.
+Supabase handles this complex permission matrix natively without requiring a heavy backend layer.
+
+## Scaling Strategy
+
+### Scaling to 10k Audits/Day
+If the application experiences explosive growth to 10,000 audits per day, several architectural adjustments would be necessary:
+
+1. **Groq API Rate Limits**:
+   - *Problem*: 10k requests/day might hit rate limits or concurrency caps.
+   - *Solution*: Implement a background queue (e.g., Upstash/Redis) or switch the AI summary generation to be asynchronous. If the API fails or is slow, the UI will gracefully fall back to a generic deterministic summary (which is already implemented).
+   
+2. **Database Reads (Shareable Links)**:
+   - *Problem*: Open Graph preview bots (Twitter, LinkedIn, Slack) will hammer the database for `/audit/:id` reads.
+   - *Solution*: Enable Next.js Incremental Static Regeneration (ISR) with Edge caching on the results page. This will cache the audit result at the Edge, reducing database load to near zero for read-heavy viral links.
+   
+3. **Database Writes**:
+   - *Problem*: While Supabase can easily handle 10k inserts/day, violent traffic spikes could cause connection pooling issues in serverless environments.
+   - *Solution*: Implement batch processing for lead and audit inserts if necessary, or ensure Prisma/Supabase client uses a robust connection pooler like PgBouncer.
