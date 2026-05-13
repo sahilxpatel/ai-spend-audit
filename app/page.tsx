@@ -274,6 +274,7 @@ export default function Home() {
                     className="group bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 text-center transition-all hover:shadow-lg hover:border-slate-300 dark:hover:border-slate-500 hover:-translate-y-1 cursor-default"
                   >
                     <div className="w-10 h-10 mx-auto mb-4 text-slate-700 dark:text-slate-300 group-hover:scale-110 transition-transform">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={tool.logo}
                         alt={`${tool.name} logo`}
