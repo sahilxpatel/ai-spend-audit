@@ -114,3 +114,28 @@ feat: extend audit persistence with input stack, output result and pricing snaps
 Stepping away for lunch. Detection endpoint is next when I get back.
 
 ---
+## 2026-05-20 14:00 — Back, Detection Endpoint Started
+
+Back from lunch. Starting `/api/detect-changes` now.
+
+Built `app/api/detect-changes/route.ts`.
+
+**Security first:** Added `CRON_SECRET` check at the top of the handler. If the `Authorization: Bearer <secret>` header doesn't match the env variable, return 401. This prevents anyone from triggering mass emails by hitting the endpoint publicly.
+
+**Detection Logic:**
+1. Fetch all audits from Supabase
+2. For each audit, take the stored `input_stack` and re-run it through `aggregateAudit()` using the **current** `lib/pricing.ts`
+3. Compare the freshly generated `output_result` against the stored `output_result`
+4. If they differ — flag the audit as `is_stale = true` and add it to an "affected users" array
+5. Group the affected users array by `user_email` and pass to email sender
+
+**Key decision:** Re-running the audit engine with latest pricing rather than deep JSON comparing snapshots. This is more accurate — a price could technically change but if it doesn't alter the recommendation, we don't want to spam the user. Only flag stale when the *output actually changes*.
+
+Tested manually with Postman — temporarily changed Cursor Pro price in `lib/pricing.ts`, triggered the endpoint with correct secret header, confirmed correct audits flagged as `is_stale = true` in Supabase.
+
+Third commit pushed:
+```
+feat: add secure pricing change detection endpoint
+```
+
+---
