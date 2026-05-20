@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { aggregateAudit } from '@/lib/audit-engine';
 import { pricing as currentPricing } from '@/lib/pricing';
 import { ToolInput } from '@/types/audit';
-
+import { sendStaleAuditEmail, AffectedAuditInfo } from '@/lib/resend';
 export async function POST(req: Request) {
   // Step 1: Security
   const authHeader = req.headers.get('authorization');
@@ -78,6 +78,51 @@ export async function POST(req: Request) {
         }
       }
     }
+  }
+
+  // Step 2.5: Send Notification Emails grouped by user
+  for (const [email, userAudits] of Array.from(affectedUsersMap.entries())) {
+    const emailAudits: AffectedAuditInfo[] = userAudits.map((audit: any) => {
+      const inputStack: ToolInput[] = Array.isArray(audit.input_stack) 
+        ? audit.input_stack
+        : (typeof audit.input_stack === 'string' ? JSON.parse(audit.input_stack) : []);
+        
+      const oldPricing = audit.pricing_snapshot as Record<string, import('@/types/audit').ToolPricing>;
+      const priceChanges = [];
+      
+      for (const input of inputStack) {
+        const oldTool = oldPricing?.[input.toolId];
+        const newTool = currentPricing[input.toolId];
+        
+        if (oldTool && newTool) {
+          const oldPlan = oldTool.plans[input.planId];
+          const newPlan = newTool.plans[input.planId];
+          
+          if (oldPlan && newPlan && oldPlan.price !== newPlan.price) {
+            priceChanges.push({
+              toolName: `${newTool.displayName} ${newPlan.name}`,
+              oldPriceText: `$${oldPlan.price}`,
+              newPriceText: `$${newPlan.price}`
+            });
+          }
+        }
+      }
+
+      const oldOutput = audit.output_result as any;
+      const freshOutput = aggregateAudit(inputStack, currentPricing);
+
+      return {
+        auditId: audit.id,
+        oldSavings: oldOutput?.totalMonthlySavings || 0,
+        newSavings: freshOutput.totalMonthlySavings,
+        priceChanges
+      };
+    });
+
+    await sendStaleAuditEmail({
+      to: email,
+      audits: emailAudits
+    });
   }
 
   // Step 3: Return

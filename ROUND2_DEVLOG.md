@@ -139,3 +139,47 @@ feat: add secure pricing change detection endpoint
 ```
 
 ---
+
+## 2026-05-20 15:30 — Blocker: Email Grouping Logic
+
+Hit a bug in the consolidated email logic. User with 3 stale audits was receiving 3 separate emails instead of 1 consolidated one.
+
+Root cause: I was calling `resend.send()` inside the audit loop instead of grouping first.
+
+Fixed by building a `Map<user_email, stale_audits[]>` first, then iterating over the map to send one email per user containing all their affected audits. Now correctly sends one consolidated email per user regardless of how many stale audits they have — exactly what the assignment requires.
+
+Took about 40 minutes to debug and refactor cleanly.
+
+---
+
+## 2026-05-20 17:00 — Snack Break
+
+Quick 30 minute break. Email grouping is fixed, just need to build the Resend template now.
+
+---
+
+## 2026-05-20 17:30 — Email Notification Working
+
+Back from break. Built the Resend email template in `lib/resend.ts`.
+
+**Email content:**
+- Subject: `"Your AI spend audit is outdated — here's what changed"`
+- Which tools had price changes with exact delta (e.g. `"Cursor Pro: $20 → $25/seat"`)
+- Impact on their audit: `"Your previous audit recommended X. Current pricing means we'd recommend Y."`
+- Prominent CTA button linking to `https://[domain]/audit/[id]/re-run`
+- Responsive HTML template
+
+Tested end-to-end: triggered detection endpoint, email arrived in inbox within 5 seconds. Re-run link in email correctly routes to the page (404 for now — building that next).
+
+Fourth commit pushed:
+```
+feat: send consolidated re-audit notification email via resend
+```
+
+---
+
+## 2026-05-20 19:20 to 21:00 — Dinner Break and took rest
+
+Stopping for dinner. Diff view UI is the last major piece remaining.
+
+---
