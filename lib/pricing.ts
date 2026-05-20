@@ -1,5 +1,6 @@
 import { ToolPricing } from "@/types/audit";
 
+export const PRICING_VERSION = "2026-05-20";
 export const pricing: Record<string, ToolPricing> = {
   // Source: https://www.cursor.com/pricing (verified 2026-05-12)
   cursor: {

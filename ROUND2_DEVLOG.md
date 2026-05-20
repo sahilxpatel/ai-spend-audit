@@ -68,3 +68,49 @@ First commit pushed:
 ```
 chore: add round2 devlog and pr description scaffolds
 ```
+
+Starting DB schema migration now.
+
+---
+
+## 2026-05-20 11:15 — Database Schema Migration
+
+Wrote and executed the following SQL migration in Supabase dashboard:
+
+```sql
+alter table audits
+add column user_email text,
+add column input_stack jsonb,
+add column output_result jsonb,
+add column pricing_snapshot jsonb,
+add column pricing_version text,
+add column is_stale boolean default false,
+add column reaudited_from uuid references audits(id);
+```
+
+Also updated Supabase Row Level Security (RLS) policy — the existing anon insert policy didn't cover the new columns. Inserts were failing silently. Took ~20 minutes to debug. Fixed by updating the RLS policy to allow all columns for the anon role.
+
+Added `PRICING_VERSION = "2026-05-20"` constant to `lib/pricing.ts`.
+
+Updated `lib/audits.ts` and `app/api/audit/route.ts` to:
+
+- Pull `user_email` from the request body (was only going to `leads` table before)
+- Separate `input_stack` (raw user submission) from `output_result` (engine recommendations)
+- Serialize current `PRICING` object + `PRICING_VERSION` as `pricing_snapshot`
+- Store all fields in the `audits` row on creation
+
+Tested: submitted a new audit, checked Supabase — `input_stack`, `output_result`, `pricing_snapshot`, and `user_email` all correctly populated in the new columns.
+
+Second commit pushed:
+
+```
+feat: extend audit persistence with input stack, output result and pricing snapshot
+```
+
+---
+
+## 2026-05-20 13:00 — Lunch Break
+
+Stepping away for lunch. Detection endpoint is next when I get back.
+
+---
