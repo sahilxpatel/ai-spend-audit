@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createLead } from '@/lib/leads';
-import { getAuditById } from '@/lib/audits';
+import { getAuditById, updateAuditEmail } from '@/lib/audits';
 import { sendAuditEmail } from '@/lib/resend';
 import { z } from 'zod';
 import { AuditSummary } from '@/types/audit';
@@ -40,6 +40,9 @@ export async function POST(request: Request) {
 
     // Save lead
     await createLead({ audit_id, email, company, role, team_size });
+
+    // Link email to the audit record
+    await updateAuditEmail(audit_id, email);
 
     // Try to send email asynchronously (or await, better to await to confirm it worked, but Resend is fast)
     const auditData = auditRecord.audit_data as unknown as AuditSummary;

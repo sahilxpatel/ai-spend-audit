@@ -53,3 +53,15 @@ export async function getAuditById(id: string): Promise<AuditRow | null> {
 
   return data as AuditRow;
 }
+
+export async function updateAuditEmail(id: string, email: string) {
+  const supabase = getSupabase();
+  const { error } = await supabase
+    .from('audits')
+    .update({ user_email: email })
+    .eq('id', id);
+
+  if (error) {
+    console.error(`Error updating audit email for ${id}:`, error);
+  }
+}

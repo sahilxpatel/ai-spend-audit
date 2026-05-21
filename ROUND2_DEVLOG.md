@@ -306,3 +306,17 @@ test: add 3 vitest tests for pricing change detection logic
 ```
 
 ---
+
+## 2026-05-21 10:20 — Sync `user_email` on Lead Capture
+
+Noticed that while we store `user_email` on the `leads` table, the `audits` table row didn't have it explicitly mapped when a user opts-in via the results page. Added `updateAuditEmail` in `lib/audits.ts` and called it inside `app/api/lead/route.ts` to ensure the `user_email` is correctly attached to the audit record.
+
+Wrote and ran `test-email-sync.ts` script to verify. The database correctly populates `user_email` in both the `leads` table and the `audits` table immediately upon lead capture.
+
+Eighth commit pushed:
+
+```
+fix: sync user_email to audits table when lead is captured
+```
+
+---
