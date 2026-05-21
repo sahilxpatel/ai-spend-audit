@@ -63,7 +63,7 @@ export default async function ReRunPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const oldPricing = (auditRow.pricing_snapshot || {}) as Record<string, import('@/types/audit').ToolPricing>;
+  const oldPricing = (auditRow.pricing_snapshot as unknown || {}) as Record<string, import('@/types/audit').ToolPricing>;
 
   // Combine rows for side-by-side table
   const rows = inputStack.map((input, index) => {
