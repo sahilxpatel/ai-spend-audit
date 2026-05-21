@@ -2,8 +2,11 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { aggregateAudit } from '@/lib/audit-engine';
 import { pricing as currentPricing } from '@/lib/pricing';
-import { ToolInput } from '@/types/audit';
+import { ToolInput, AuditSummary } from '@/types/audit';
 import { sendStaleAuditEmail, AffectedAuditInfo } from '@/lib/resend';
+import { Database } from '@/types/database';
+
+type AuditRow = Database['public']['Tables']['audits']['Row'];
 export async function POST(req: Request) {
   // Step 1: Security
   const authHeader = req.headers.get('authorization');
@@ -32,8 +35,8 @@ export async function POST(req: Request) {
   }
 
   const affectedAudits = [];
-  const affectedUsersMap = new Map<string, any[]>();
-  let checkedCount = audits?.length || 0;
+  const affectedUsersMap = new Map<string, AuditRow[]>();
+  const checkedCount = audits?.length || 0;
   let flaggedCount = 0;
 
   if (audits && audits.length > 0) {
@@ -82,7 +85,7 @@ export async function POST(req: Request) {
 
   // Step 2.5: Send Notification Emails grouped by user
   for (const [email, userAudits] of Array.from(affectedUsersMap.entries())) {
-    const emailAudits: AffectedAuditInfo[] = userAudits.map((audit: any) => {
+    const emailAudits: AffectedAuditInfo[] = userAudits.map((audit: AuditRow) => {
       const inputStack: ToolInput[] = Array.isArray(audit.input_stack) 
         ? audit.input_stack
         : (typeof audit.input_stack === 'string' ? JSON.parse(audit.input_stack) : []);
@@ -108,7 +111,7 @@ export async function POST(req: Request) {
         }
       }
 
-      const oldOutput = audit.output_result as any;
+      const oldOutput = audit.output_result as AuditSummary;
       const freshOutput = aggregateAudit(inputStack, currentPricing);
 
       return {

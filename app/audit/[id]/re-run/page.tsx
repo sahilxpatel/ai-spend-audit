@@ -1,7 +1,7 @@
 import { getAuditById } from '@/lib/audits';
 import { aggregateAudit } from '@/lib/audit-engine';
 import { pricing as currentPricing } from '@/lib/pricing';
-import { notFound, redirect } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { ToolInput, AuditSummary } from '@/types/audit';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
@@ -16,7 +16,7 @@ export default async function ReRunPage({ params }: { params: Promise<{ id: stri
     return (
       <div className="container mx-auto py-20 text-center px-4 max-w-4xl">
         <h1 className="text-3xl font-bold mb-4 text-red-400">Audit Not Found</h1>
-        <p className="text-slate-400 mb-8">We couldn't find the requested audit. It may have been deleted or the ID is incorrect.</p>
+        <p className="text-slate-400 mb-8">We couldn&apos;t find the requested audit. It may have been deleted or the ID is incorrect.</p>
         <Link href="/" className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors">
           Start New Audit
         </Link>
@@ -88,7 +88,7 @@ export default async function ReRunPage({ params }: { params: Promise<{ id: stri
     }
 
     // Format recommendations text
-    const formatRecs = (recs: any[]) => {
+    const formatRecs = (recs: { title: string }[]) => {
       if (!recs || recs.length === 0) return "Keep current plan (Optimal)";
       return recs.map(r => r.title).join(", ");
     };
@@ -140,7 +140,7 @@ export default async function ReRunPage({ params }: { params: Promise<{ id: stri
           </h1>
         )}
         <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-          We've re-run your stack against our latest pricing database. Here is the tool-by-tool breakdown.
+          We&apos;ve re-run your stack against our latest pricing database. Here is the tool-by-tool breakdown.
         </p>
       </div>
 

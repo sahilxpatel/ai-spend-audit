@@ -8,9 +8,9 @@ export async function createAudit(
   auditData: AuditSummary, 
   summary: string | null = null,
   user_email: string | null = null,
-  input_stack: any = null,
-  output_result: any = null,
-  pricing_snapshot: any = null,
+  input_stack: unknown = null,
+  output_result: unknown = null,
+  pricing_snapshot: unknown = null,
   pricing_version: string | null = null
 ) {
   const supabase = getSupabase();

@@ -55,7 +55,7 @@ describe('Pricing Change Detection Logic', () => {
       { id: 'audit3', user_email: 'other@example.com' }
     ];
 
-    const affectedUsersMap = new Map<string, any[]>();
+    const affectedUsersMap = new Map<string, { id: string, user_email: string }[]>();
     
     for (const audit of staleAudits) {
       if (audit.user_email) {

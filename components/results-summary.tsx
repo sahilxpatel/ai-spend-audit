@@ -6,6 +6,7 @@ import { RecommendationCard } from "./recommendation-card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Loader2, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface ResultsSummaryProps {
   audit: AuditSummary;
@@ -42,9 +43,9 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
             Audit Another Stack
           </Button>
         ) : (
-          <a href="/" className={cn(buttonVariants({ variant: "outline" }), "hidden sm:flex")}>
+          <Link href="/" className={cn(buttonVariants({ variant: "outline" }), "hidden sm:flex")}>
             Audit Another Stack
-          </a>
+          </Link>
         )}
       </div>
 
@@ -136,13 +137,13 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           ) : (
-            <a 
+            <Link 
               href="/" 
               className={cn(buttonVariants({ size: "lg" }), "px-8 text-lg bg-white text-slate-900 hover:bg-slate-100 h-14 rounded-full shadow-xl inline-flex")}
             >
               Analyze Another Stack
               <ArrowRight className="ml-2 w-5 h-5" />
-            </a>
+            </Link>
           )}
         </div>
       </div>
