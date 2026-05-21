@@ -1,10 +1,19 @@
 ## What this PR does
 
-Added a "Re-audit on Pricing Change" feature. Every audit now stores a pricing snapshot. A detection endpoint flags stale audits when pricing changes. Affected users get one consolidated email with a re-run link. The re-run page shows a side-by-side diff of old vs new recommendations.
+Added a "Re-audit on Pricing Change" feature. Every audit now stores a
+pricing snapshot at submission time. A secure detection endpoint re-runs
+the audit engine against latest pricing to flag stale audits. Affected
+users get one consolidated email — not one per audit — with a re-run link.
+The re-run page shows a side-by-side diff of old vs new recommendations
+with color-coded changes.
 
 ## Why
 
-AI tool pricing changes frequently. Stale audits are worse than no audit — users making decisions on outdated data could be losing money. This makes audits live.
+AI tool pricing changes frequently — Cursor raised prices in 2024, Claude
+added new tiers in 2025. Stale audits are worse than no audit — users making
+decisions on outdated data could be losing money without knowing it. This
+feature makes every audit self-healing: when pricing changes, users are
+automatically notified and shown exactly what changed and why.
 
 ## How it works
 

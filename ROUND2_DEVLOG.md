@@ -320,3 +320,28 @@ fix: sync user_email to audits table when lead is captured
 ```
 
 ---
+
+## 2026-05-21 11:15 — Live Detection Test
+
+Manually tested the detection logic against the Vercel production deployment. Changed the Cursor Pro price from $20 to $99 to trigger a real stale audit, verified the `/api/detect-changes` endpoint successfully sent the Resend email, and then immediately reverted the price back to keep the repository clean.
+
+Ninth and Tenth commits pushed:
+
+```
+test: temporarily change cursor pro price to trigger stale audit detection
+fix: revert cursor pro price to correct value after testing
+```
+
+---
+
+## 2026-05-21 11:30 — Documentation Polish
+
+Reviewed and polished the final submission documents (`ROUND2_PR.md` and `ROUND2_REFLECTION.md`). Rewrote the reflection answers to sound more natural and direct, stripping out overly corporate phrasing while preserving the core technical trade-offs. The PR description was also refined for maximum clarity.
+
+Eleventh commit pushed:
+
+```
+docs: polish and finalize PR description and reflection answers
+```
+
+---
