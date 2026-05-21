@@ -413,6 +413,6 @@ Form submitted with PR URL and live deployed URL. Done with over 6 hours to spar
 
 ---
 
-**Total hours worked:** ~18 hours 45 minutes
+**Total hours worked:** ~19 hours 15 minutes
 **Breaks:** 5 hours 30 minutes
 **Sleep:** 8 hours
