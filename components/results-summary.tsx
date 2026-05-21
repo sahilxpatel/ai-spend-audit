@@ -3,14 +3,15 @@
 import { AuditSummary } from "@/types/audit";
 import { SavingsHero } from "./savings-hero";
 import { RecommendationCard } from "./recommendation-card";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Loader2, CheckCircle } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ResultsSummaryProps {
   audit: AuditSummary;
   aiSummary: string | null;
   isLoadingSummary: boolean;
-  onReset: () => void;
+  onReset?: () => void;
 }
 
 export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: ResultsSummaryProps) {
@@ -36,9 +37,15 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
           <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-50 tracking-tight">Your Audit Results</h2>
           <p className="text-slate-500 dark:text-slate-400 mt-1">Based on live pricing data and usage patterns</p>
         </div>
-        <Button variant="outline" onClick={onReset} className="hidden sm:flex">
-          Audit Another Stack
-        </Button>
+        {onReset ? (
+          <Button variant="outline" onClick={onReset} className="hidden sm:flex">
+            Audit Another Stack
+          </Button>
+        ) : (
+          <a href="/" className={cn(buttonVariants({ variant: "outline" }), "hidden sm:flex")}>
+            Audit Another Stack
+          </a>
+        )}
       </div>
 
       <SavingsHero 
@@ -115,18 +122,28 @@ export function ResultsSummary({ audit, aiSummary, isLoadingSummary, onReset }: 
           <p className="text-slate-300 text-lg mb-8 max-w-2xl mx-auto">
             Check if another department or team is overpaying for their AI tools.
           </p>
-          <Button 
-            size="lg" 
-            className="px-8 text-lg bg-white text-slate-900 hover:bg-slate-100 h-14 rounded-full shadow-xl"
-            onClick={() => {
-              window.scrollTo({ top: 0, behavior: "smooth" });
-              // Small delay to let the scroll start before unmounting the results
-              setTimeout(onReset, 150);
-            }}
-          >
-            Analyze Another Stack
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+          {onReset ? (
+            <Button 
+              size="lg" 
+              className="px-8 text-lg bg-white text-slate-900 hover:bg-slate-100 h-14 rounded-full shadow-xl"
+              onClick={() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+                // Small delay to let the scroll start before unmounting the results
+                setTimeout(onReset, 150);
+              }}
+            >
+              Analyze Another Stack
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+          ) : (
+            <a 
+              href="/" 
+              className={cn(buttonVariants({ size: "lg" }), "px-8 text-lg bg-white text-slate-900 hover:bg-slate-100 h-14 rounded-full shadow-xl inline-flex")}
+            >
+              Analyze Another Stack
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </a>
+          )}
         </div>
       </div>
 

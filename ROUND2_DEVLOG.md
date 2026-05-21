@@ -183,3 +183,71 @@ feat: send consolidated re-audit notification email via resend
 Stopping for dinner. Diff view UI is the last major piece remaining.
 
 ---
+
+
+## 2026-05-20 21:00 — Back, Diff View UI Started
+
+Back from dinner. Building `app/audit/[id]/re-run/page.tsx`.
+
+**Data flow for this page:**
+1. Fetch the stored audit from Supabase using `id` from URL params — get `input_stack` and `output_result`
+2. Run the `input_stack` through `aggregateAudit()` against current `lib/pricing.ts` to get the new result
+3. Render both old and new results side by side
+4. Prominently display the "Total Savings Delta" as the headline
+5. Mute/collapse rows where the recommendation is identical
+
+**UI layout decided:**
+- Hero headline: `"Your savings changed from $X → $Y"` — big and prominent
+- Side-by-side table: `Old Recommendation | New Recommendation`
+- Changed rows: highlighted in amber
+- Price increases: red indicator
+- New cheaper options: green indicator
+- Unchanged rows: collapsed/muted to reduce noise
+- CTA at bottom: `"Save updated audit"` button
+
+---
+
+## 2026-05-20 22:30 — Diff View Complete
+
+`app/audit/[id]/re-run/page.tsx` working end-to-end.
+
+The side-by-side diff clearly shows:
+- Which tools have updated recommendations
+- Old savings vs new savings per tool with color coding
+- Total monthly savings delta as the headline number
+
+Edge case handled: if user clicks re-run link but pricing has since been updated again, we always compare against the *original stored `pricing_snapshot`* vs current pricing — not any intermediate state.
+
+
+---
+
+## 2026-05-20 23:00 — Sleep
+
+All 4 core features working end-to-end. Stopping for the night.
+
+Tomorrow: write `ROUND2_PR.md` properly, add tests, verify on deployed URL, open PR.
+
+**Remaining for tomorrow:**
+- `ROUND2_PR.md` final write — especially "What I cut" section
+- 3 tests for detection logic
+- Full end-to-end test on Vercel deployed URL
+- Open PR and submit
+
+---
+
+## 2026-05-21 07:00 — Morning, Woke Up
+
+Slept 11:00 PM to 7:00 AM — 8 hours. Good rest.
+
+---
+
+## 2026-05-21 07:00 — Breakfast and Freshen Up
+
+Taking time to freshen up and have breakfast. Clear head going into documentation and final testing.
+
+
+and also fifth commit pushed:
+
+```
+feat: add side-by-side audit diff view at audit/[id]/re-run
+```
