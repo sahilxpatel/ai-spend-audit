@@ -395,6 +395,18 @@ fix: resolve all eslint errors for ci green check
 
 ---
 
+## 2026-05-21 16:20 — TypeScript Build Fix
+
+Resolved a strict TypeScript checking error that caused the Vercel production build to fail. Safely casted `Json` types from Supabase to `unknown` before asserting them as specific interfaces. Verified the fix locally with a completely successful `npm run build`.
+
+Thirteenth commit pushed:
+
+```
+fix: resolve Next.js strict type checking errors for build
+```
+
+---
+
 ## 2026-05-21 16:30 — Submitted
 
 Form submitted with PR URL and live deployed URL. Done with over 6 hours to spare before the 10:00 PM deadline.

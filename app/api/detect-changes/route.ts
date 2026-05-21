@@ -90,7 +90,7 @@ export async function POST(req: Request) {
         ? audit.input_stack
         : (typeof audit.input_stack === 'string' ? JSON.parse(audit.input_stack) : []);
         
-      const oldPricing = audit.pricing_snapshot as Record<string, import('@/types/audit').ToolPricing>;
+      const oldPricing = audit.pricing_snapshot as unknown as Record<string, import('@/types/audit').ToolPricing>;
       const priceChanges = [];
       
       for (const input of inputStack) {
@@ -111,7 +111,7 @@ export async function POST(req: Request) {
         }
       }
 
-      const oldOutput = audit.output_result as AuditSummary;
+      const oldOutput = audit.output_result as unknown as AuditSummary;
       const freshOutput = aggregateAudit(inputStack, currentPricing);
 
       return {
