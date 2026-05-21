@@ -16,7 +16,7 @@ export const pricing: Record<string, ToolPricing> = {
       },
       pro: {
         name: "Pro",
-        price: 20,
+        price: 99,
         recommendedTeamSize: [1, 5],
         capabilities: ["Unlimited premium models", "Advanced codebase indexing", "Composer features"],
       },
