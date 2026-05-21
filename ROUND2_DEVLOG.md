@@ -114,6 +114,7 @@ feat: extend audit persistence with input stack, output result and pricing snaps
 Stepping away for lunch. Detection endpoint is next when I get back.
 
 ---
+
 ## 2026-05-20 14:00 — Back, Detection Endpoint Started
 
 Back from lunch. Starting `/api/detect-changes` now.
@@ -123,17 +124,19 @@ Built `app/api/detect-changes/route.ts`.
 **Security first:** Added `CRON_SECRET` check at the top of the handler. If the `Authorization: Bearer <secret>` header doesn't match the env variable, return 401. This prevents anyone from triggering mass emails by hitting the endpoint publicly.
 
 **Detection Logic:**
+
 1. Fetch all audits from Supabase
 2. For each audit, take the stored `input_stack` and re-run it through `aggregateAudit()` using the **current** `lib/pricing.ts`
 3. Compare the freshly generated `output_result` against the stored `output_result`
 4. If they differ — flag the audit as `is_stale = true` and add it to an "affected users" array
 5. Group the affected users array by `user_email` and pass to email sender
 
-**Key decision:** Re-running the audit engine with latest pricing rather than deep JSON comparing snapshots. This is more accurate — a price could technically change but if it doesn't alter the recommendation, we don't want to spam the user. Only flag stale when the *output actually changes*.
+**Key decision:** Re-running the audit engine with latest pricing rather than deep JSON comparing snapshots. This is more accurate — a price could technically change but if it doesn't alter the recommendation, we don't want to spam the user. Only flag stale when the _output actually changes_.
 
 Tested manually with Postman — temporarily changed Cursor Pro price in `lib/pricing.ts`, triggered the endpoint with correct secret header, confirmed correct audits flagged as `is_stale = true` in Supabase.
 
 Third commit pushed:
+
 ```
 feat: add secure pricing change detection endpoint
 ```
@@ -163,6 +166,7 @@ Quick 30 minute break. Email grouping is fixed, just need to build the Resend te
 Back from break. Built the Resend email template in `lib/resend.ts`.
 
 **Email content:**
+
 - Subject: `"Your AI spend audit is outdated — here's what changed"`
 - Which tools had price changes with exact delta (e.g. `"Cursor Pro: $20 → $25/seat"`)
 - Impact on their audit: `"Your previous audit recommended X. Current pricing means we'd recommend Y."`
@@ -172,6 +176,7 @@ Back from break. Built the Resend email template in `lib/resend.ts`.
 Tested end-to-end: triggered detection endpoint, email arrived in inbox within 5 seconds. Re-run link in email correctly routes to the page (404 for now — building that next).
 
 Fourth commit pushed:
+
 ```
 feat: send consolidated re-audit notification email via resend
 ```
@@ -184,12 +189,12 @@ Stopping for dinner. Diff view UI is the last major piece remaining.
 
 ---
 
-
 ## 2026-05-20 21:00 — Back, Diff View UI Started
 
 Back from dinner. Building `app/audit/[id]/re-run/page.tsx`.
 
 **Data flow for this page:**
+
 1. Fetch the stored audit from Supabase using `id` from URL params — get `input_stack` and `output_result`
 2. Run the `input_stack` through `aggregateAudit()` against current `lib/pricing.ts` to get the new result
 3. Render both old and new results side by side
@@ -197,6 +202,7 @@ Back from dinner. Building `app/audit/[id]/re-run/page.tsx`.
 5. Mute/collapse rows where the recommendation is identical
 
 **UI layout decided:**
+
 - Hero headline: `"Your savings changed from $X → $Y"` — big and prominent
 - Side-by-side table: `Old Recommendation | New Recommendation`
 - Changed rows: highlighted in amber
@@ -212,12 +218,12 @@ Back from dinner. Building `app/audit/[id]/re-run/page.tsx`.
 `app/audit/[id]/re-run/page.tsx` working end-to-end.
 
 The side-by-side diff clearly shows:
+
 - Which tools have updated recommendations
 - Old savings vs new savings per tool with color coding
 - Total monthly savings delta as the headline number
 
-Edge case handled: if user clicks re-run link but pricing has since been updated again, we always compare against the *original stored `pricing_snapshot`* vs current pricing — not any intermediate state.
-
+Edge case handled: if user clicks re-run link but pricing has since been updated again, we always compare against the _original stored `pricing_snapshot`_ vs current pricing — not any intermediate state.
 
 ---
 
@@ -228,6 +234,7 @@ All 4 core features working end-to-end. Stopping for the night.
 Tomorrow: write `ROUND2_PR.md` properly, add tests, verify on deployed URL, open PR.
 
 **Remaining for tomorrow:**
+
 - `ROUND2_PR.md` final write — especially "What I cut" section
 - 3 tests for detection logic
 - Full end-to-end test on Vercel deployed URL
@@ -245,9 +252,57 @@ Slept 11:00 PM to 7:00 AM — 8 hours. Good rest.
 
 Taking time to freshen up and have breakfast. Clear head going into documentation and final testing.
 
-
 and also fifth commit pushed:
 
 ```
 feat: add side-by-side audit diff view at audit/[id]/re-run
 ```
+
+---
+
+## 2026-05-21 08:00 — Back at Desk, Writing ROUND2_PR.md
+
+Fresh eyes. Starting with `ROUND2_PR.md` while all decisions are clear in my head.
+
+The `## What I cut` section required the most thought — these are real engineering tradeoffs, not excuses:
+
+- **Unsubscribe flow** — would require `unsubscribed` boolean column on `leads` table + token-based unsubscribe endpoint. Important for production but value/effort ratio didn't justify it in 36h. Diff view was higher priority.
+- **Admin dashboard (`/admin`)** — bonus feature only. Aggregating Supabase data for total audits, emails sent, click-through rates is straightforward but not core.
+- **Vercel Cron scheduling** — requires Pro plan. Manual `/api/detect-changes` endpoint is explicitly allowed by the assignment and removes infra risk under time pressure.
+- **Pricing changelog page (`/changelog`)** — interesting organic growth surface but out of scope for 36h. Would be week-2 work.
+
+ROUND2_PR.md complete after ~90 minutes.
+
+---
+
+## 2026-05-21 09:30 — Build Fix
+
+Fixed a strict Next.js build error during PR and reflection writing due to a TypeScript type mismatch on the JSON-parsed `pricing_snapshot`. Casted the parsed JSON to `unknown` first in `app/audit/[id]/re-run/page.tsx`, and verified the local production build passes perfectly.
+
+Sixth commit pushed:
+
+```
+fix: resolve typescript type error in re-run page pricing snapshot cast
+
+
+```
+
+## 2026-05-21 10:00 — Tests Written
+
+Added 3 Vitest tests for the detection logic in `detect-changes.test.ts`:
+
+1. Audit with identical `pricing_snapshot` vs current pricing returns `is_stale: false`
+2. Audit where Cursor Pro price changed returns `is_stale: true` and correct delta
+3. Two audits for same `user_email` are correctly grouped into one email notification object
+
+All 3 pass with `npm run test`.
+
+Seventh commit pushed:
+
+```
+test: add 3 vitest tests for pricing change detection logic
+
+
+```
+
+---
