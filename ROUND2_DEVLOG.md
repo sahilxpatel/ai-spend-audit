@@ -345,3 +345,50 @@ docs: polish and finalize PR description and reflection answers
 ```
 
 ---
+
+## 2026-05-21 11:50 Final Checks
+
+.Final sweep before opening PR:
+
+- ✅ All 4 required features working on live deployed URL
+- ✅ Round 1 functionality preserved and verified
+- ✅ Tests passing — `npm run test` green
+- ✅ No secrets in repo — all keys in env variables
+- ✅ `ROUND2_PR.md` complete with all required sections
+- ✅ `ROUND2_DEVLOG.md` up to date
+
+---
+
+## 2026-05-21 14:30 — PR Opened
+
+Opened PR on GitHub:
+
+- Title: `feat: add re-audit on pricing change with email notifications`
+- From: `round-2-reaudit` → `main`
+- PR left open — not merged, as per assignment instructions
+- Description copied from `ROUND2_PR.md`
+
+## Final Summary
+
+| Feature                                                                       | Status             |
+| ----------------------------------------------------------------------------- | ------------------ |
+| Persistent audit storage (`input_stack`, `output_result`, `pricing_snapshot`) | ✅ Done            |
+| Secure pricing change detection endpoint (`/api/detect-changes`)              | ✅ Done            |
+| Consolidated email notifications via Resend                                   | ✅ Done            |
+| Side-by-side diff view (`/audit/[id]/re-run`)                                 | ✅ Done            |
+| Round 1 functionality preserved                                               | ✅ Verified        |
+| Tests                                                                         | ✅ 3 tests passing |
+| `ROUND2_PR.md`                                                                | ✅ Complete        |
+| `ROUND2_DEVLOG.md`                                                            | ✅ Complete        |
+
+---
+
+## 2026-05-21 16:00 — Submitted
+
+Form submitted with PR URL and live deployed URL. Done with over 6 hours to spare before the 10:00 PM deadline.
+
+---
+
+**Total hours worked:** ~18 hours 45 minutes
+**Breaks:** 5 hours 30 minutes
+**Sleep:** 8 hours
