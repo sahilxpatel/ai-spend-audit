@@ -41,14 +41,33 @@ export default async function ReRunPage({ params }: { params: Promise<{ id: stri
   // Note: If reaudited_from is null, it still works correctly because we just rely on input_stack
   
   const oldOutput = auditRow.output_result as unknown as AuditSummary;
-  const newOutput = aggregateAudit(inputStack, currentPricing);
+  const oldPricing = (auditRow.pricing_snapshot as unknown || {}) as Record<string, import('@/types/audit').ToolPricing>;
+
+  // Update inputStack to reflect any base price changes in the user's current plan
+  const updatedInputStack = inputStack.map(input => {
+    const oldPrice = oldPricing?.[input.toolId]?.plans?.[input.planId]?.price;
+    const newPrice = currentPricing[input.toolId]?.plans?.[input.planId]?.price;
+    
+    if (oldPrice !== undefined && newPrice !== undefined && oldPrice !== newPrice) {
+      if (input.monthlySpend === oldPrice * input.seats) {
+        return { ...input, monthlySpend: newPrice * input.seats };
+      } else {
+        const delta = newPrice - oldPrice;
+        const newSpend = Math.max(0, input.monthlySpend + (delta * input.seats));
+        return { ...input, monthlySpend: newSpend };
+      }
+    }
+    return input;
+  });
+
+  const newOutput = aggregateAudit(updatedInputStack, currentPricing);
 
   const oldSavings = oldOutput?.totalMonthlySavings || 0;
   const newSavings = newOutput.totalMonthlySavings;
 
   const oldSavingsJson = JSON.stringify(oldOutput);
   const newSavingsJson = JSON.stringify(newOutput);
-  const hasPricingChanged = oldSavingsJson !== newSavingsJson;
+  const hasPricingChanged = oldSavingsJson !== newSavingsJson || oldPricing !== currentPricing;
 
   // Edge Case 3: If pricing hasn't changed
   if (!hasPricingChanged) {
@@ -63,10 +82,8 @@ export default async function ReRunPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const oldPricing = (auditRow.pricing_snapshot as unknown || {}) as Record<string, import('@/types/audit').ToolPricing>;
-
   // Combine rows for side-by-side table
-  const rows = inputStack.map((input, index) => {
+  const rows = updatedInputStack.map((input, index) => {
     const oldRes = oldOutput?.results?.[index];
     const newRes = newOutput?.results?.[index];
     

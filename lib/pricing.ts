@@ -76,7 +76,7 @@ export const pricing: Record<string, ToolPricing> = {
       },
       team: {
         name: "Team",
-        price: 30,
+        price: 25,
         recommendedTeamSize: [3, 100],
         capabilities: ["Shared workspace", "Admin console", "No training on data"],
       },

@@ -50,8 +50,26 @@ export async function POST(req: Request) {
 
       if (inputStack.length === 0) continue;
 
+      const oldPricing = (audit.pricing_snapshot as unknown || {}) as Record<string, import('@/types/audit').ToolPricing>;
+      
+      const updatedInputStack = inputStack.map(input => {
+        const oldPrice = oldPricing?.[input.toolId]?.plans?.[input.planId]?.price;
+        const newPrice = currentPricing[input.toolId]?.plans?.[input.planId]?.price;
+        
+        if (oldPrice !== undefined && newPrice !== undefined && oldPrice !== newPrice) {
+          if (input.monthlySpend === oldPrice * input.seats) {
+            return { ...input, monthlySpend: newPrice * input.seats };
+          } else {
+            const delta = newPrice - oldPrice;
+            const newSpend = Math.max(0, input.monthlySpend + (delta * input.seats));
+            return { ...input, monthlySpend: newSpend };
+          }
+        }
+        return input;
+      });
+
       // Re-run through aggregateAudit using current pricing
-      const freshOutput = aggregateAudit(inputStack, currentPricing);
+      const freshOutput = aggregateAudit(updatedInputStack, currentPricing);
       
       // Compare freshly generated output against stored output_result
       const storedOutputStr = JSON.stringify(audit.output_result);
@@ -111,8 +129,24 @@ export async function POST(req: Request) {
         }
       }
 
+      const updatedInputStack = inputStack.map(input => {
+        const oldPrice = oldPricing?.[input.toolId]?.plans?.[input.planId]?.price;
+        const newPrice = currentPricing[input.toolId]?.plans?.[input.planId]?.price;
+        
+        if (oldPrice !== undefined && newPrice !== undefined && oldPrice !== newPrice) {
+          if (input.monthlySpend === oldPrice * input.seats) {
+            return { ...input, monthlySpend: newPrice * input.seats };
+          } else {
+            const delta = newPrice - oldPrice;
+            const newSpend = Math.max(0, input.monthlySpend + (delta * input.seats));
+            return { ...input, monthlySpend: newSpend };
+          }
+        }
+        return input;
+      });
+
       const oldOutput = audit.output_result as unknown as AuditSummary;
-      const freshOutput = aggregateAudit(inputStack, currentPricing);
+      const freshOutput = aggregateAudit(updatedInputStack, currentPricing);
 
       return {
         auditId: audit.id,
