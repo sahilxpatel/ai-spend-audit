@@ -15,18 +15,39 @@ export interface Database {
           audit_data: Json
           summary: string | null
           created_at: string
+          user_email: string | null
+          input_stack: Json | null
+          output_result: Json | null
+          pricing_snapshot: Json | null
+          pricing_version: string | null
+          is_stale: boolean
+          reaudited_from: string | null
         }
         Insert: {
           id?: string
           audit_data: Json
           summary?: string | null
           created_at?: string
+          user_email?: string | null
+          input_stack?: Json | null
+          output_result?: Json | null
+          pricing_snapshot?: Json | null
+          pricing_version?: string | null
+          is_stale?: boolean
+          reaudited_from?: string | null
         }
         Update: {
           id?: string
           audit_data?: Json
           summary?: string | null
           created_at?: string
+          user_email?: string | null
+          input_stack?: Json | null
+          output_result?: Json | null
+          pricing_snapshot?: Json | null
+          pricing_version?: string | null
+          is_stale?: boolean
+          reaudited_from?: string | null
         }
       }
       leads: {

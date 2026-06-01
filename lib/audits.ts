@@ -4,11 +4,24 @@ import { Database, Json } from '@/types/database';
 
 type AuditRow = Database['public']['Tables']['audits']['Row'];
 
-export async function createAudit(auditData: AuditSummary, summary: string | null = null) {
+export async function createAudit(
+  auditData: AuditSummary, 
+  summary: string | null = null,
+  user_email: string | null = null,
+  input_stack: unknown = null,
+  output_result: unknown = null,
+  pricing_snapshot: unknown = null,
+  pricing_version: string | null = null
+) {
   const supabase = getSupabase();
   const payload: Database['public']['Tables']['audits']['Insert'] = {
     audit_data: auditData as unknown as Json,
     summary,
+    user_email,
+    input_stack: input_stack as unknown as Json,
+    output_result: output_result as unknown as Json,
+    pricing_snapshot: pricing_snapshot as unknown as Json,
+    pricing_version,
   };
 
   const { data, error } = await supabase
@@ -39,4 +52,16 @@ export async function getAuditById(id: string): Promise<AuditRow | null> {
   }
 
   return data as AuditRow;
+}
+
+export async function updateAuditEmail(id: string, email: string) {
+  const supabase = getSupabase();
+  const { error } = await supabase
+    .from('audits')
+    .update({ user_email: email })
+    .eq('id', id);
+
+  if (error) {
+    console.error(`Error updating audit email for ${id}:`, error);
+  }
 }

@@ -28,11 +28,16 @@ export async function generateMetadata(
     };
   }
 
-  const auditData = auditRecord.audit_data as unknown as AuditSummary;
-  const annualSavings = auditData.totalMonthlySavings * 12;
+  let auditData = auditRecord.audit_data as unknown as AuditSummary;
+  if (!auditData || typeof auditData.totalMonthlySavings === 'undefined') {
+    auditData = auditRecord.output_result as unknown as AuditSummary;
+  }
+  
+  const totalMonthlySavings = auditData?.totalMonthlySavings || 0;
+  const annualSavings = totalMonthlySavings * 12;
 
   const title = `AI Spend Audit found $${annualSavings.toLocaleString()}/year in savings`;
-  const description = `This startup could save $${auditData.totalMonthlySavings.toLocaleString()}/month on AI tools. View their full AI stack optimization breakdown.`;
+  const description = `This startup could save $${totalMonthlySavings.toLocaleString()}/month on AI tools. View their full AI stack optimization breakdown.`;
 
   return {
     title,
@@ -62,7 +67,12 @@ export default async function PublicAuditPage({ params }: Props) {
     notFound();
   }
 
-  const auditData = auditRecord.audit_data as unknown as AuditSummary;
+  let auditData = auditRecord.audit_data as unknown as AuditSummary;
+  if (!auditData || typeof auditData.totalMonthlySavings === 'undefined') {
+    auditData = auditRecord.output_result as unknown as AuditSummary;
+  }
+  
+  const totalMonthlySavings = auditData?.totalMonthlySavings || 0;
   const aiSummary = auditRecord.summary;
 
   return (
@@ -97,7 +107,7 @@ export default async function PublicAuditPage({ params }: Props) {
             AI Stack Optimization Report
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            This team identified ${auditData.totalMonthlySavings.toLocaleString()}/mo in potential savings across their AI subscriptions.
+            This team identified ${totalMonthlySavings.toLocaleString()}/mo in potential savings across their AI subscriptions.
           </p>
         </div>
 
@@ -106,7 +116,6 @@ export default async function PublicAuditPage({ params }: Props) {
             audit={auditData} 
             aiSummary={aiSummary} 
             isLoadingSummary={false} 
-            onReset={() => {}}
           />
         </div>
         

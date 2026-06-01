@@ -49,7 +49,7 @@ export default function Home() {
       const saveResponse = await fetch("/api/audit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audit: summary, summary: generatedSummary }),
+        body: JSON.stringify({ audit: summary, summary: generatedSummary, input_stack: formData.tools }),
       });
       const saveData = await saveResponse.json();
       if (saveData.id) {
